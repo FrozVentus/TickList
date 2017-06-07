@@ -90,24 +90,28 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> a, View v, int position,
                                     long id) {
-                final View mView = v;
-                AlertDialog.Builder deleteQuery = new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Delete Task")
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                TextView selectedText = (TextView) mView;
-                                String task = String.valueOf(selectedText.getText());
-                                activityList.remove(task);
-                                listAdapter.notifyDataSetChanged();
-                            }
-                        })
-                        .setNegativeButton("No", null);
-                AlertDialog dialog = deleteQuery.create();
-                dialog.show();
+                deletePopup(v);
             }
         });
 
         mView.setAdapter(listAdapter);
+    }
+
+    public void deletePopup(View v) {
+        final View mView = v;
+        AlertDialog.Builder deleteQuery = new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Delete Task")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        TextView selectedText = (TextView) mView;
+                        String task = String.valueOf(selectedText.getText());
+                        activityList.remove(task);
+                        listAdapter.notifyDataSetChanged();
+                    }
+                })
+                .setNegativeButton("No", null);
+        AlertDialog dialog = deleteQuery.create();
+        dialog.show();
     }
 }
