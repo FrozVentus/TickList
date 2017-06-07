@@ -22,7 +22,13 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
-
+import java.util.HashSet;
+import java.util.Set;
+import android.widget.EditText;
+import android.content.DialogInterface;
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.app.Activity;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -37,11 +43,11 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mView = (ListView) findViewById(R.id.item_list);
-        activityList = new ArrayList<>();
+        activityList = getArrayMem(getApplicationContext());
         //test data
-        activityList.add("First");
-        activityList.add("Second");
-        activityList.add("Third");
+        //activityList.add("First");
+        //activityList.add("Second");
+        //activityList.add("Third");
         //end of test data
         listAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, activityList);
@@ -74,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             String task = String.valueOf(textInput.getText());
                             activityList.add(task);
+                            storeArrayMem(activityList, getApplicationContext());
                             updateView();
                         }})
                     .setNegativeButton("Cancel", null)
@@ -114,4 +121,20 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog dialog = deleteQuery.create();
         dialog.show();
     }
+
+    public static void storeArrayMem(ArrayList<String> inArrayList, Context context){
+        Set<String> addWrite = new HashSet<String>(inArrayList);
+        SharedPreferences WordSearchPutPrefs = context.getSharedPreferences("dbArrayValues", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor prefEditor = WordSearchPutPrefs.edit();
+        prefEditor.putStringSet("myArray", addWrite);
+        prefEditor.commit();
+    }
+    public static ArrayList getArrayMem(Context infoCon)
+    {
+        SharedPreferences WordSearchGetPrefs = infoCon.getSharedPreferences("dbArrayValues",Activity.MODE_PRIVATE);
+        Set<String> tempSet = new HashSet<String>();
+        tempSet = WordSearchGetPrefs.getStringSet("myArray", tempSet);
+        return new ArrayList<String>(tempSet);
+    }
+
 }
