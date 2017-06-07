@@ -20,8 +20,9 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> activityList = null;
-    ArrayAdapter listAdapter = null;
+    ArrayList<String> activityList;
+    ArrayAdapter listAdapter;
+    ListView mView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,13 +31,13 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 //Test Data
-        ListView listView = (ListView) findViewById(R.id.item_list);
+        mView = (ListView) findViewById(R.id.item_list);
         activityList = new ArrayList<>();
         activityList.add("First");
         activityList.add("Second");
-        listAdapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1);
-        listView.setAdapter(listAdapter);
+        listAdapter = new ArrayAdapter<>(this,
+                R.layout.text_view, activityList);
+        mView.setAdapter(listAdapter);
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

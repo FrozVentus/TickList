@@ -23,8 +23,9 @@
     <ListView
         android:id="@+id/item_list"
         android:layout_width="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_height="513dp" />
+        android:layout_height="match_parent"
+        android:paddingTop="?attr/actionBarSize"
+        android:layout_gravity="top" />
 
 
 </android.support.design.widget.CoordinatorLayout>
