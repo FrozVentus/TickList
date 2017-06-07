@@ -44,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         mView = (ListView) findViewById(R.id.item_list);
         activityList = getArrayMem(getApplicationContext());
+        //ss
         //test data
         //activityList.add("First");
         //activityList.add("Second");
