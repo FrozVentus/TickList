@@ -1,5 +1,6 @@
 package frozventus.ticklist;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.os.Bundle;
@@ -13,12 +14,14 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 
@@ -33,14 +36,16 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//Test Data
         mView = (ListView) findViewById(R.id.item_list);
         activityList = new ArrayList<>();
+        //test data
         activityList.add("First");
         activityList.add("Second");
+        activityList.add("Third");
+        //end of test data
         listAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, activityList);
-        mView.setAdapter(listAdapter);
+        updateView();
     }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -60,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_addTask) {
             //add new task
             final EditText textInput = new EditText(this);
-            AlertDialog popout = new AlertDialog.Builder(this)
+            AlertDialog addQuery = new AlertDialog.Builder(this)
                     .setTitle("Add Task")
                     .setMessage("Enter details of task")
                     .setView(textInput)
@@ -69,14 +74,40 @@ public class MainActivity extends AppCompatActivity {
                         public void onClick(DialogInterface dialog, int which) {
                             String task = String.valueOf(textInput.getText());
                             activityList.add(task);
-                            mView.setAdapter(listAdapter);
+                            updateView();
                         }})
                     .setNegativeButton("Cancel", null)
                     .create();
-            popout.show();
+            addQuery.show();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+    public void updateView() {
+
+        mView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> a, View v, int position,
+                                    long id) {
+                final View mView = v;
+                AlertDialog.Builder deleteQuery = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Delete Task")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                TextView selectedText = (TextView) mView;
+                                String task = String.valueOf(selectedText.getText());
+                                activityList.remove(task);
+                                listAdapter.notifyDataSetChanged();
+                            }
+                        })
+                        .setNegativeButton("No", null);
+                AlertDialog dialog = deleteQuery.create();
+                dialog.show();
+            }
+        });
+
+        mView.setAdapter(listAdapter);
     }
 }
