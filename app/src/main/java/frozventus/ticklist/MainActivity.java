@@ -1,9 +1,11 @@
 package frozventus.ticklist;
 
+import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.ExpandedMenuView;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +15,7 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
@@ -36,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         activityList.add("First");
         activityList.add("Second");
         listAdapter = new ArrayAdapter<>(this,
-                R.layout.text_view, activityList);
+                android.R.layout.simple_list_item_1, activityList);
         mView.setAdapter(listAdapter);
     }
     @Override
@@ -54,7 +57,23 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_addTask) {
+            //add new task
+            final EditText textInput = new EditText(this);
+            AlertDialog popout = new AlertDialog.Builder(this)
+                    .setTitle("Add Task")
+                    .setMessage("Enter details of task")
+                    .setView(textInput)
+                    .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String task = String.valueOf(textInput.getText());
+                            activityList.add(task);
+                            mView.setAdapter(listAdapter);
+                        }})
+                    .setNegativeButton("Cancel", null)
+                    .create();
+            popout.show();
             return true;
         }
 
