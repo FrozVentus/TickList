@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity {
                         TextView selectedText = (TextView) mView;
                         String task = String.valueOf(selectedText.getText());
                         activityList.remove(task);
+                        storeArrayMem(activityList, getApplicationContext());
                         listAdapter.notifyDataSetChanged();
                     }
                 })
