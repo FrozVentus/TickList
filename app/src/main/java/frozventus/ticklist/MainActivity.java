@@ -90,6 +90,23 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        if (id == R.id.action_clearAll) {
+            AlertDialog clearQuery = new AlertDialog.Builder(this)
+                    .setTitle("Clear All")
+                    .setMessage("Are you sure you want to clear all tasks?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            activityList.clear();
+                            storeArrayMem(activityList, getApplicationContext());
+                            updateView();
+                        }})
+                    .setNegativeButton("No", null)
+                    .create();
+            clearQuery.show();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
     public void updateView() {
@@ -126,14 +143,16 @@ public class MainActivity extends AppCompatActivity {
 
     public static void storeArrayMem(ArrayList<String> inArrayList, Context context){
         Set<String> addWrite = new HashSet<String>(inArrayList);
-        SharedPreferences WordSearchPutPrefs = context.getSharedPreferences("dbArrayValues", Activity.MODE_PRIVATE);
+        SharedPreferences WordSearchPutPrefs = context.getSharedPreferences("dbArrayValues",
+                Activity.MODE_PRIVATE);
         SharedPreferences.Editor prefEditor = WordSearchPutPrefs.edit();
         prefEditor.putStringSet("myArray", addWrite);
         prefEditor.commit();
     }
     public static ArrayList getArrayMem(Context infoCon)
     {
-        SharedPreferences WordSearchGetPrefs = infoCon.getSharedPreferences("dbArrayValues",Activity.MODE_PRIVATE);
+        SharedPreferences WordSearchGetPrefs = infoCon.getSharedPreferences("dbArrayValues",
+                Activity.MODE_PRIVATE);
         Set<String> tempSet = new HashSet<String>();
         tempSet = WordSearchGetPrefs.getStringSet("myArray", tempSet);
         return new ArrayList<String>(tempSet);
