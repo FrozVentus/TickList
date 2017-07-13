@@ -6,8 +6,9 @@
     <item
         android:id="@+id/action_addTask"
         android:orderInCategory="1"
+        android:icon="@drawable/ic_add_icon"
         android:title="@string/action_addTask"
-        app:showAsAction="never"/>
+        app:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/action_clearAll"
