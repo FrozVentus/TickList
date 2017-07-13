@@ -22,6 +22,8 @@ import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import android.widget.EditText;
@@ -32,9 +34,10 @@ import android.app.Activity;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> activityList;
-    ArrayAdapter listAdapter;
-    ListView mView;
+    ArrayList<String> titleList;
+    HashMap<String, ArrayList<String>> detailList;
+    ExpandableListAdapter expListAdapter;
+    ExpandableListView mView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +45,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mView = (ListView) findViewById(R.id.item_list);
-        activityList = getArrayMem(getApplicationContext());
-        //ss
-        //test data
-        //activityList.add("First");
-        //activityList.add("Second");
-        //activityList.add("Third");
-        //end of test data
-        listAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, activityList);
+        mView = (ExpandableListView) findViewById(R.id.item_list);
+     //   activityList = getArrayMem(getApplicationContext());
+        getTestData();
+        expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
+                titleList, detailList);
         updateView();
     }
     @Override
@@ -67,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+/*
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_addTask) {
             //add new task
@@ -106,11 +104,12 @@ public class MainActivity extends AppCompatActivity {
             clearQuery.show();
             return true;
         }
-
+*/
         return super.onOptionsItemSelected(item);
     }
-    public void updateView() {
 
+    public void updateView() {
+/*
         mView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> a, View v, int position,
@@ -118,11 +117,11 @@ public class MainActivity extends AppCompatActivity {
                 deletePopup(v);
             }
         });
+*/
+        mView.setAdapter(expListAdapter);
 
-        mView.setAdapter(listAdapter);
     }
-
-    public void deletePopup(View v) {
+/*    public void deletePopup(View v) {
         final View mView = v;
         AlertDialog.Builder deleteQuery = new AlertDialog.Builder(MainActivity.this)
                 .setTitle("Delete Task")
@@ -131,9 +130,9 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         TextView selectedText = (TextView) mView;
                         String task = String.valueOf(selectedText.getText());
-                        activityList.remove(task);
-                        storeArrayMem(activityList, getApplicationContext());
-                        listAdapter.notifyDataSetChanged();
+                        detailList.remove(task);
+         //               storeArrayMem(activityList, getApplicationContext());
+         //               listAdapter.notifyDataSetChanged();
                     }
                 })
                 .setNegativeButton("No", null);
@@ -157,5 +156,30 @@ public class MainActivity extends AppCompatActivity {
         tempSet = WordSearchGetPrefs.getStringSet("myArray", tempSet);
         return new ArrayList<String>(tempSet);
     }
+*/
 
+    private void getTestData() {
+        titleList = new ArrayList<String>();
+        detailList = new HashMap<String, ArrayList<String>>();
+
+        //add titles
+        titleList.add("task 1");
+        titleList.add("task 2");
+        titleList.add("task 3");
+
+        fillDetails("task 1");
+        fillDetails("task 2");
+        fillDetails("task 3");
+    }
+
+    private void fillDetails(String title) {
+        ArrayList<String> details = new ArrayList<String>();
+        details.add("details here");
+        details.add("is daily? here");
+        details.add("due date here");
+        details.add("");
+        details.add("click here to delete task");
+
+        detailList.put(title, details);
+    }
 }
