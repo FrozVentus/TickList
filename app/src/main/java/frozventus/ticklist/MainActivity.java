@@ -31,6 +31,8 @@ import android.content.DialogInterface;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.app.Activity;
+import android.widget.Toast;
+
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,7 +49,8 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         mView = (ExpandableListView) findViewById(R.id.item_list);
      //   activityList = getArrayMem(getApplicationContext());
-        getTestData();
+        titleList = new ArrayList<String>();
+        detailList = new HashMap<String, ArrayList<String>>();
         expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
                 titleList, detailList);
         updateView();
@@ -65,29 +68,37 @@ public class MainActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-/*
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_addTask) {
             //add new task
             final EditText textInput = new EditText(this);
-            AlertDialog addQuery = new AlertDialog.Builder(this)
+            final AlertDialog addQuery = new AlertDialog.Builder(this)
                     .setTitle("Add Task")
-                    .setMessage("Enter details of task")
+                    .setMessage("Enter title of task")
                     .setView(textInput)
                     .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             String task = String.valueOf(textInput.getText());
-                            activityList.add(task);
-                            storeArrayMem(activityList, getApplicationContext());
+
+                            boolean added = addTask(task);
+/*
+                            if(!added) {
+                                dialog.dismiss();
+                                notAdded();
+                            }
+*/
+//                            storeArrayMem(activityList, getApplicationContext());
                             updateView();
                         }})
                     .setNegativeButton("Cancel", null)
                     .create();
             addQuery.show();
+            updateView();
             return true;
         }
-
+/*
         if (id == R.id.action_clearAll) {
             AlertDialog clearQuery = new AlertDialog.Builder(this)
                     .setTitle("Clear All")
@@ -109,37 +120,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateView() {
-/*
-        mView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> a, View v, int position,
-                                    long id) {
-                deletePopup(v);
-            }
-        });
-*/
+
         mView.setAdapter(expListAdapter);
 
     }
-/*    public void deletePopup(View v) {
-        final View mView = v;
-        AlertDialog.Builder deleteQuery = new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Delete Task")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        TextView selectedText = (TextView) mView;
-                        String task = String.valueOf(selectedText.getText());
-                        detailList.remove(task);
-         //               storeArrayMem(activityList, getApplicationContext());
-         //               listAdapter.notifyDataSetChanged();
-                    }
-                })
-                .setNegativeButton("No", null);
-        AlertDialog dialog = deleteQuery.create();
-        dialog.show();
-    }
-
+/*
     public static void storeArrayMem(ArrayList<String> inArrayList, Context context){
         Set<String> addWrite = new HashSet<String>(inArrayList);
         SharedPreferences WordSearchPutPrefs = context.getSharedPreferences("dbArrayValues",
@@ -159,8 +144,6 @@ public class MainActivity extends AppCompatActivity {
 */
 
     private void getTestData() {
-        titleList = new ArrayList<String>();
-        detailList = new HashMap<String, ArrayList<String>>();
 
         //add titles
         titleList.add("task 1");
@@ -172,6 +155,27 @@ public class MainActivity extends AppCompatActivity {
         fillDetails("task 3");
     }
 
+    private boolean addTask(String taskTitle) {
+        if(titleList.contains(taskTitle)) {
+            Context context = getApplicationContext();
+            CharSequence text = "An error has occurred, make sure task is not repeated";
+            int duration = Toast.LENGTH_LONG;
+
+            Toast toast = Toast.makeText(context, text, duration);
+            toast.show();
+            return false;
+        }
+        titleList.add(taskTitle);
+        fillDetails(taskTitle);
+        Context context = getApplicationContext();
+        CharSequence text = "Task Added";
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+        return true;
+    }
+
     private void fillDetails(String title) {
         ArrayList<String> details = new ArrayList<String>();
         details.add("details here");
@@ -181,5 +185,15 @@ public class MainActivity extends AppCompatActivity {
         details.add("click here to delete task");
 
         detailList.put(title, details);
+    }
+
+    private void notAdded() {
+        AlertDialog.Builder notAddedMsg =
+                new AlertDialog.Builder(getApplicationContext())
+                        .setTitle("Error")
+                        .setMessage("An error has occurred, make sure task is not repeated")
+                        .setNegativeButton("Close", null);
+        AlertDialog notAdded = notAddedMsg.create();
+        notAdded.show();
     }
 }
