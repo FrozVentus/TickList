@@ -83,12 +83,12 @@ public class MainActivity extends AppCompatActivity {
                             String task = String.valueOf(textInput.getText());
 
                             boolean added = addTask(task);
-/*
+
                             if(!added) {
                                 dialog.dismiss();
                                 notAdded();
                             }
-*/
+
 //                            storeArrayMem(activityList, getApplicationContext());
                             updateView();
                         }})
@@ -157,12 +157,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean addTask(String taskTitle) {
         if(titleList.contains(taskTitle)) {
-            Context context = getApplicationContext();
-            CharSequence text = "An error has occurred, make sure task is not repeated";
-            int duration = Toast.LENGTH_LONG;
 
-            Toast toast = Toast.makeText(context, text, duration);
-            toast.show();
             return false;
         }
         titleList.add(taskTitle);
@@ -189,10 +184,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void notAdded() {
         AlertDialog.Builder notAddedMsg =
-                new AlertDialog.Builder(getApplicationContext())
-                        .setTitle("Error")
-                        .setMessage("An error has occurred, make sure task is not repeated")
-                        .setNegativeButton("Close", null);
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("Task Already Exists")
+                        .setMessage("A task with the same title already exists, please edit that task or choose a different title")
+                        .setNeutralButton("Close", null);
         AlertDialog notAdded = notAddedMsg.create();
         notAdded.show();
     }
