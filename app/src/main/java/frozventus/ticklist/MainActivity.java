@@ -3,6 +3,7 @@ package frozventus.ticklist;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -38,6 +39,7 @@ import android.app.Activity;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
     ArrayList<String> titleList;
@@ -111,10 +113,20 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            detailList.clear();
-                            titleList.clear();
+                            AlertDialog confirmQuery = new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Clear All")
+                                    .setMessage("This process cannot be reverted, proceed to clear all?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            detailList.clear();
+                                            titleList.clear();
 //                            storeArrayMem(activityList, getApplicationContext());
-                            updateView();
+                                            updateView();
+                                        }})
+                                    .setNegativeButton("No", null)
+                                    .create();
+                            confirmQuery.show();
                         }})
                     .setNegativeButton("No", null)
                     .create();
@@ -227,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
         currMonth = c.get(Calendar.MONTH);
         currDay = c.get(Calendar.DAY_OF_MONTH);
         final DatePickerDialog dateDialog =
-                new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+                new DatePickerDialog(this, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                        new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
                         String dateString = "Due:" + dayOfMonth + "-" + month + "-" + year;
@@ -236,7 +249,8 @@ public class MainActivity extends AppCompatActivity {
                         dailyInput(details, title);
                     }
                 }, currYear, currMonth, currDay);
-        dateDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "cancel", new DialogInterface.OnClickListener() {
+        dateDialog.setTitle("Due Date");
+        dateDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == DialogInterface.BUTTON_NEGATIVE) {
                             removeTask(title);
@@ -250,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean dailyInput(final ArrayList<String> details, final String title) {
         final AlertDialog addQuery = new AlertDialog.Builder(this)
-                .setTitle("Daily Task")
+                .setTitle("Daily")
                 .setMessage("Is this task to be repeated daily?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
