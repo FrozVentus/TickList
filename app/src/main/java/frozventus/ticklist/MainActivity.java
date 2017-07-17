@@ -1,5 +1,6 @@
 package frozventus.ticklist;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.database.DataSetObserver;
@@ -17,12 +18,15 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import java.lang.reflect.Array;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     HashMap<String, ArrayList<String>> detailList;
     ExpandableListAdapter expListAdapter;
     ExpandableListView mView;
+    int currYear, currMonth, currDay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
             updateView();
             return true;
         }
-/*
+
         if (id == R.id.action_clearAll) {
             AlertDialog clearQuery = new AlertDialog.Builder(this)
                     .setTitle("Clear All")
@@ -106,8 +111,9 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            activityList.clear();
-                            storeArrayMem(activityList, getApplicationContext());
+                            detailList.clear();
+                            titleList.clear();
+//                            storeArrayMem(activityList, getApplicationContext());
                             updateView();
                         }})
                     .setNegativeButton("No", null)
@@ -115,7 +121,7 @@ public class MainActivity extends AppCompatActivity {
             clearQuery.show();
             return true;
         }
-*/
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -150,18 +156,17 @@ public class MainActivity extends AppCompatActivity {
         titleList.add("task 2");
         titleList.add("task 3");
 
-        fillDetails("task 1");
-        fillDetails("task 2");
-        fillDetails("task 3");
+        fill("task 1");
+        fill("task 2");
+        fill("task 3");
     }
 
     private boolean addTask(String taskTitle) {
         if(titleList.contains(taskTitle)) {
-
             return false;
         }
+        fill(taskTitle);
         titleList.add(taskTitle);
-        fillDetails(taskTitle);
         Context context = getApplicationContext();
         CharSequence text = "Task Added";
         int duration = Toast.LENGTH_SHORT;
@@ -171,16 +176,99 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void fillDetails(String title) {
-        ArrayList<String> details = new ArrayList<String>();
-        details.add("details here");
-        details.add("is daily? here");
-        details.add("due date here");
+    private void removeTask(String title) {
+        detailList.remove(title);
+        titleList.remove(title);
+    }
+
+    private void fill(String title) {
+        ArrayList<String> details = new ArrayList<String>(3);
         details.add("");
-        details.add("click here to delete task");
+        details.add("");
+        details.add("");
+
+        detailsInput(details, title);
+
+        //details.add("details here");
+        //details.add(1,"due date here");
+        //details.add(2,"is daily? here");
 
         detailList.put(title, details);
     }
+
+    private Boolean detailsInput(final ArrayList<String> details, final String title) {
+        final EditText textInput = new EditText(this);
+        final AlertDialog addQuery = new AlertDialog.Builder(this)
+                .setTitle("Details")
+                .setMessage("Enter details of task")
+                .setView(textInput)
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String input = String.valueOf(textInput.getText());
+                        details.remove(0);
+                        details.add(0, input);
+                        dateInput(details, title);
+                    }})
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeTask(title);
+                        updateView();
+                    }})
+                .create();
+        addQuery.show();
+        return true;
+    };
+
+    private Boolean dateInput(final ArrayList<String> details, final String title) {
+        final Calendar c = Calendar.getInstance();
+        currYear = c.get(Calendar.YEAR);
+        currMonth = c.get(Calendar.MONTH);
+        currDay = c.get(Calendar.DAY_OF_MONTH);
+        final DatePickerDialog dateDialog =
+                new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        String dateString = "Due:" + dayOfMonth + "-" + month + "-" + year;
+                        details.remove(1);
+                        details.add(1, dateString);
+                        dailyInput(details, title);
+                    }
+                }, currYear, currMonth, currDay);
+        dateDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_NEGATIVE) {
+                            removeTask(title);
+                            updateView();
+                        }
+                    }
+                });
+        dateDialog.show();
+        return true;
+    };
+
+    private boolean dailyInput(final ArrayList<String> details, final String title) {
+        final AlertDialog addQuery = new AlertDialog.Builder(this)
+                .setTitle("Daily Task")
+                .setMessage("Is this task to be repeated daily?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        details.remove(2);
+                        details.add(2, "This is a daily task");
+                    }})
+                .setNegativeButton("No", null)
+                .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeTask(title);
+                        updateView();
+                    }})
+                .create();
+        addQuery.show();
+        return true;
+    };
 
     private void notAdded() {
         AlertDialog.Builder notAddedMsg =
