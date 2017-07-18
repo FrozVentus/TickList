@@ -8,6 +8,17 @@ public class ToDoList {
     private int dueMonth;
     private int dueYear;
 
+        //newly added constructors
+        public ToDoList() {
+            setTitle("");
+            setDetails("");
+        }
+
+        public ToDoList(String taskName, String details) {
+            setTitle(taskName);
+            setDetails(details);
+        }
+
         public boolean setTitle(String string) {
             if(string.equals(""))
                 return false;
