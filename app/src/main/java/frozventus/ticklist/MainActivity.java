@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -27,7 +28,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -161,7 +164,7 @@ public class MainActivity extends AppCompatActivity {
     }
 */
 
-    private void getTestData() {
+    private void getTestData() {// not used anymore
 
         //add titles
         titleList.add("task 1");
@@ -180,7 +183,7 @@ public class MainActivity extends AppCompatActivity {
         fill(taskTitle);
         titleList.add(taskTitle);
         Context context = getApplicationContext();
-        CharSequence text = "Task Added";
+        CharSequence text = "Task Created";
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(context, text, duration);
@@ -231,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                 .create();
         addQuery.show();
         return true;
-    };
+    }
 
     private Boolean dateInput(final ArrayList<String> details, final String title) {
         final Calendar c = Calendar.getInstance();
@@ -243,7 +246,13 @@ public class MainActivity extends AppCompatActivity {
                         new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        String dateString = "Due:" + dayOfMonth + "-" + month + "-" + year;
+                        GregorianCalendar dueDate = new GregorianCalendar(year, month, dayOfMonth) {
+                            @Override
+                            public String toString() {
+                                return new SimpleDateFormat("d MMM yyyy").format(this.getTime());
+                            }
+                        };
+                        String dateString = dueDate.toString();
                         details.remove(1);
                         details.add(1, dateString);
                         dailyInput(details, title);
@@ -260,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
                 });
         dateDialog.show();
         return true;
-    };
+    }
 
     private boolean dailyInput(final ArrayList<String> details, final String title) {
         final AlertDialog addQuery = new AlertDialog.Builder(this)
@@ -270,9 +279,14 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         details.remove(2);
-                        details.add(2, "This is a daily task");
+                        details.add(2, "Daily task");
                     }})
-                .setNegativeButton("No", null)
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        details.remove(2);
+                        details.add(2, "One time task");
+                    }})
                 .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -282,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
                 .create();
         addQuery.show();
         return true;
-    };
+    }
 
     private void notAdded() {
         AlertDialog.Builder notAddedMsg =

@@ -9,13 +9,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/taskTitle"
-        android:textSize="18dp"
-        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft"
-        />
+        android:textSize="18sp"
+        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" />
+
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/delete"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:src="@drawable/ic_delete"/>
 </LinearLayout>

@@ -5,10 +5,18 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:layout_width="fill_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/taskDetails"
-        android:textSize="18dp"
+        android:textSize="18sp"
         android:paddingLeft="?android:attr/expandableListPreferredChildPaddingLeft"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editButton"
+        android:text="@string/edit"
+        android:textSize="14sp"
+        android:layout_gravity="end"/>
 
 </LinearLayout>
