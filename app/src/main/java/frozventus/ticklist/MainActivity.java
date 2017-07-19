@@ -33,6 +33,8 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 import android.widget.EditText;
 import android.content.DialogInterface;
@@ -42,6 +44,8 @@ import android.app.Activity;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.lang.Object;
+import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -51,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
     ExpandableListView mView;
     int currYear, currMonth, currDay;
 
+    //memory saver.
+    public static final String USERDATA = "MyVariables";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mView = (ExpandableListView) findViewById(R.id.item_list);
-     //   activityList = getArrayMem(getApplicationContext());
+        //   activityList = getArrayMem(getApplicationContext());
         titleList = new ArrayList<String>();
         detailList = new HashMap<String, ArrayList<String>>();
         expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
@@ -307,4 +315,41 @@ public class MainActivity extends AppCompatActivity {
         AlertDialog notAdded = notAddedMsg.create();
         notAdded.show();
     }
+
+
+    //save hashMap
+    private static void saveMap(String key, Map<String,String> inputMap){
+        SharedPreferences pSharedPref = getApplicationContext().getInstance().getSharedPreferences(USERDATA, Context.MODE_PRIVATE);
+        if (pSharedPref != null){
+            JSONObject jsonObject = new JSONObject(inputMap);
+            String jsonString = jsonObject.toString();
+            SharedPreferences.Editor editor = pSharedPref.edit();
+            editor.remove(key).commit();
+            editor.putString(key, jsonString);
+            editor.commit();
+        }
+    }
+
+    //load map
+    private static Map<String,String> loadMap(String key){
+        Map<String,String> outputMap = new HashMap<String,String>();
+        SharedPreferences pSharedPref = getApplicationContext().getInstance().getSharedPreferences(USERDATA, Context.MODE_PRIVATE);
+        try{
+            if (pSharedPref != null){
+                String jsonString = pSharedPref.getString(key, (new JSONObject()).toString());
+                JSONObject jsonObject = new JSONObject(jsonString);
+                Iterator<String> keysItr = jsonObject.keys();
+                while(keysItr.hasNext()) {
+                    String k = keysItr.next();
+                    String v = (String) jsonObject.get(k);
+                    outputMap.put(k,v);
+                }
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return outputMap;
+    }
+
+
 }
