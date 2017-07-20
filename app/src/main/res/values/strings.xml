@@ -3,4 +3,5 @@
     <string name="action_addTask">Add</string>
     <string name="text_view">Text View Here</string>
     <string name="action_clearAll">Clear All</string>
+    <string name="edit">Edit</string>
 </resources>

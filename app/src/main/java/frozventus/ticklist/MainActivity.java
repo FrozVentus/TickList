@@ -1,9 +1,12 @@
 package frozventus.ticklist;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.Bundle;
+import android.support.annotation.IntDef;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
@@ -17,24 +20,48 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import java.lang.reflect.Array;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import android.widget.EditText;
 import android.content.DialogInterface;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.app.Activity;
+import android.widget.Toast;
+
 import java.util.ArrayList;
+import java.lang.Object;
+import org.json.JSONObject;
+
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> activityList;
-    ArrayAdapter listAdapter;
-    ListView mView;
+    List<String> _titleList;
+    HashMap<Integer, ArrayList<String>> _detailList; // _id of task is used as Key
+    List<Integer> _orderList; // hold _id of the task in order
+    DBHandler myDB;
+    ExpandableListAdapter expListAdapter;
+    ExpandableListView mView;
+    int currYear, currMonth, currDay;
+
+    //memory saver.
+    public static final String USERDATA = "MyVariables";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,16 +69,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        mView = (ListView) findViewById(R.id.item_list);
-        activityList = getArrayMem(getApplicationContext());
-        //ss
-        //test data
-        //activityList.add("First");
-        //activityList.add("Second");
-        //activityList.add("Third");
-        //end of test data
-        listAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, activityList);
+        mView = (ExpandableListView) findViewById(R.id.item_list);
+        _titleList = new LinkedList<String>();
+        _detailList = new HashMap<Integer, ArrayList<String>>();
+        _orderList = new LinkedList<Integer>();
+        myDB = new DBHandler(this, _titleList, _detailList, _orderList);
+        expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
+                _titleList, _detailList, _orderList, myDB);
+        myDB.getAllTasks();
         updateView();
     }
     @Override
@@ -72,21 +97,21 @@ public class MainActivity extends AppCompatActivity {
         if (id == R.id.action_addTask) {
             //add new task
             final EditText textInput = new EditText(this);
-            AlertDialog addQuery = new AlertDialog.Builder(this)
+            final AlertDialog addQuery = new AlertDialog.Builder(this)
                     .setTitle("Add Task")
-                    .setMessage("Enter details of task")
+                    .setMessage("Enter title of task")
                     .setView(textInput)
                     .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             String task = String.valueOf(textInput.getText());
-                            activityList.add(task);
-                            storeArrayMem(activityList, getApplicationContext());
+                            addTask(task);
                             updateView();
                         }})
                     .setNegativeButton("Cancel", null)
                     .create();
             addQuery.show();
+            updateView();
             return true;
         }
 
@@ -97,9 +122,18 @@ public class MainActivity extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            activityList.clear();
-                            storeArrayMem(activityList, getApplicationContext());
-                            updateView();
+                            AlertDialog confirmQuery = new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle("Clear All")
+                                    .setMessage("This process cannot be reverted, proceed to clear all?")
+                                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            myDB.clearAll();
+                                            updateView();
+                                        }})
+                                    .setNegativeButton("No", null)
+                                    .create();
+                            confirmQuery.show();
                         }})
                     .setNegativeButton("No", null)
                     .create();
@@ -109,53 +143,109 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-    public void updateView() {
-
-        mView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> a, View v, int position,
-                                    long id) {
-                deletePopup(v);
-            }
-        });
-
-        mView.setAdapter(listAdapter);
+    @Override
+    protected void onDestroy() {
+        myDB.close();
+        super.onDestroy();
     }
 
-    public void deletePopup(View v) {
-        final View mView = v;
-        AlertDialog.Builder deleteQuery = new AlertDialog.Builder(MainActivity.this)
-                .setTitle("Delete Task")
+    public void updateView() { // update screen
+
+        mView.setAdapter(expListAdapter);
+
+    }
+
+    private boolean addTask(String taskTitle) {
+
+        fill(taskTitle);
+
+        return true;
+    }
+
+    private void fill(String title) {
+        ArrayList<String> details = new ArrayList<String>(3);
+        // placeholder value
+        details.add("");
+        details.add("");
+        details.add("");
+
+        detailsInput(details, title);
+        updateView();
+    }
+
+    private Boolean detailsInput(final ArrayList<String> details, final String title) {
+        final EditText textInput = new EditText(this);
+        final AlertDialog addQuery = new AlertDialog.Builder(this)
+                .setTitle("Details")
+                .setMessage("Enter details of task")
+                .setView(textInput)
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String input = String.valueOf(textInput.getText());
+                        details.remove(0);
+                        details.add(0, input); // enter detail
+                        dateInput(details, title); // call input of date
+                    }})
+                .setNegativeButton("Cancel", null)
+                .create();
+        addQuery.show();
+        return true;
+    }
+
+    private Boolean dateInput(final ArrayList<String> details, final String title) {
+        final Calendar c = Calendar.getInstance();
+        currYear = c.get(Calendar.YEAR);
+        currMonth = c.get(Calendar.MONTH);
+        currDay = c.get(Calendar.DAY_OF_MONTH);
+        final DatePickerDialog dateDialog =
+                new DatePickerDialog(this, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                        new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
+                        GregorianCalendar dueDate = new GregorianCalendar(year, month, dayOfMonth) {
+                            @Override
+                            public String toString() {
+                                return new SimpleDateFormat("d MMM yyyy").format(this.getTime());
+                            }
+                        };
+                        String dateString = dueDate.toString();
+                        details.remove(1);
+                        details.add(1, dateString); // enter date
+                        dailyInput(details, title); // call input of daily
+                    }
+                }, currYear, currMonth, currDay);
+        dateDialog.setTitle("Due Date");
+        dateDialog.show();
+        return true;
+    }
+
+    private boolean dailyInput(final ArrayList<String> details, final String title) {
+        final AlertDialog addQuery = new AlertDialog.Builder(this)
+                .setTitle("Daily")
+                .setMessage("Is this task to be repeated daily?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        TextView selectedText = (TextView) mView;
-                        String task = String.valueOf(selectedText.getText());
-                        activityList.remove(task);
-                        storeArrayMem(activityList, getApplicationContext());
-                        listAdapter.notifyDataSetChanged();
-                    }
-                })
-                .setNegativeButton("No", null);
-        AlertDialog dialog = deleteQuery.create();
-        dialog.show();
+                        details.remove(2);
+                        details.add(2, "Daily task"); // enter daily
+                        myDB.addTask(title, details); // save in database
+                        updateView();
+                    }})
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        details.remove(2);
+                        details.add(2, "One time task"); // enter daily
+                        myDB.addTask(title, details); // save in database
+                        updateView();
+                    }})
+                .setNeutralButton("Cancel", null)
+                .create();
+        addQuery.show();
+        return true;
     }
 
-    public static void storeArrayMem(ArrayList<String> inArrayList, Context context){
-        Set<String> addWrite = new HashSet<String>(inArrayList);
-        SharedPreferences WordSearchPutPrefs = context.getSharedPreferences("dbArrayValues",
-                Activity.MODE_PRIVATE);
-        SharedPreferences.Editor prefEditor = WordSearchPutPrefs.edit();
-        prefEditor.putStringSet("myArray", addWrite);
-        prefEditor.commit();
-    }
-    public static ArrayList getArrayMem(Context infoCon)
-    {
-        SharedPreferences WordSearchGetPrefs = infoCon.getSharedPreferences("dbArrayValues",
-                Activity.MODE_PRIVATE);
-        Set<String> tempSet = new HashSet<String>();
-        tempSet = WordSearchGetPrefs.getStringSet("myArray", tempSet);
-        return new ArrayList<String>(tempSet);
-    }
+
 
 }
