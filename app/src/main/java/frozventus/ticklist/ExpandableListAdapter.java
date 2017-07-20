@@ -23,19 +23,25 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.List;
 
 public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context _context;
-    private ArrayList<String> _titleList;
-    private HashMap<String, ArrayList<String>> _taskDetails;
+    private List<String> _titleList;
+    private HashMap<Integer, ArrayList<String>> _taskDetails; // _id of task is used as Key
+    private List<Integer> _orderList; // hold _id of the task in order
     private int currYear, currMonth, currDay;
+    private DBHandler _db;
 
-    public ExpandableListAdapter(Context context, ArrayList<String> titleList,
-                                 HashMap<String, ArrayList<String>> taskDetails){
+    public ExpandableListAdapter(Context context, List<String> titleList,
+                                 HashMap<Integer, ArrayList<String>> taskDetails,
+                                 List<Integer> orderList, DBHandler db){
         _context = context;
         _titleList = titleList;
         _taskDetails = taskDetails;
+        _orderList = orderList;
+        _db = db;
     }
 
     @Override
@@ -45,7 +51,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public int getChildrenCount(int groupPosition) {
-        return _taskDetails.get(_titleList.get(groupPosition)).size();
+        return _taskDetails.get(getGroupIndex(groupPosition)).size();
     }
 
     @Override
@@ -55,7 +61,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getChild(int groupPosition, int childPosition) {
-        return _taskDetails.get(_titleList.get(groupPosition)).get(childPosition);
+        return _taskDetails.get(getGroupIndex(groupPosition)).get(childPosition);
     }
 
     @Override
@@ -83,14 +89,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         }
         TextView titleView = (TextView) convertView.findViewById(R.id.taskTitle);
         titleView.setTypeface(null, Typeface.BOLD);
-        titleView.setText(title);
+        titleView.setText(title); // set title
 
 
-        ImageButton delete = (ImageButton)convertView.findViewById(R.id.delete);
+        ImageButton delete = (ImageButton)convertView.findViewById(R.id.delete); // delete button
         delete.setOnClickListener(new View.OnClickListener() {
 
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) { // delete confirmation
                 AlertDialog.Builder deleteQuery = new AlertDialog.Builder(_context)
                         .setTitle("Delete Task")
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -104,7 +110,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                 dialog.show();
             }
         });
-        delete.setFocusable(false);
+        delete.setFocusable(false); // allow the text to be clickable
 
         return convertView;
     }
@@ -120,11 +126,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         }
         TextView detailView = (TextView) convertView
                 .findViewById(R.id.taskDetails);
-        Button editButton = (Button)convertView.findViewById(R.id.editButton);
+        detailView.setText(details); // set detail
+
+        Button editButton = (Button)convertView.findViewById(R.id.editButton); // edit button
         editButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        switch(childPosition) {
+                        switch(childPosition) { // determine which entry to edit
                             case 0:
                                 editDetails(groupPosition, childPosition);
                                 break;
@@ -137,14 +145,18 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                         }
                     }
                 });
-        editButton.setFocusable(false);
-        detailView.setText(details);
+        editButton.setFocusable(false); // allow the text to be clickable
         return convertView;
     }
 
+    private int getGroupIndex(int groupPostion) { //used to obtain index of task saved in database
+        return _orderList.get(groupPostion);
+    }
+
     private boolean editDetails(final int groupPosition, final int childPosition) {
-        final EditText textInput = new EditText(_context);
-        final AlertDialog addQuery = new AlertDialog.Builder(_context)
+        // edit detail of task
+        final EditText textInput = new EditText(_context); // text input
+        final AlertDialog addQuery = new AlertDialog.Builder(_context) // text input popup
                 .setTitle("Edit Details")
                 .setMessage("Enter new details of task")
                 .setView(textInput)
@@ -152,8 +164,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         String input = String.valueOf(textInput.getText());
-                        _taskDetails.get(_titleList.get(groupPosition)).remove(childPosition);
-                        _taskDetails.get(_titleList.get(groupPosition)).add(childPosition, input);
+                        // update database
+                        _db.updateTask(getGroupIndex(groupPosition), childPosition, input);
+                        // update adapter
                         notifyDataSetInvalidated();
                     }})
                 .setNegativeButton("Cancel", null)
@@ -163,11 +176,11 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     private boolean editDate(final int groupPosition, final int childPosition) {
-        final Calendar c = Calendar.getInstance();
+        final Calendar c = Calendar.getInstance(); // obtains current date
         currYear = c.get(Calendar.YEAR);
         currMonth = c.get(Calendar.MONTH);
         currDay = c.get(Calendar.DAY_OF_MONTH);
-        final DatePickerDialog dateDialog =
+        final DatePickerDialog dateDialog = // date picker popup
                 new DatePickerDialog(_context, android.app.AlertDialog.THEME_HOLO_LIGHT,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
@@ -179,8 +192,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                                     }
                                 };
                                 String dateString = dueDate.toString();
-                                _taskDetails.get(_titleList.get(groupPosition)).remove(childPosition);
-                                _taskDetails.get(_titleList.get(groupPosition)).add(childPosition, dateString);
+                                // update database
+                                _db.updateTask(getGroupIndex(groupPosition), childPosition, dateString);
+                                // update adapter
                                 notifyDataSetInvalidated();
                             }
                         }, currYear, currMonth, currDay);
@@ -196,15 +210,17 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        _taskDetails.get(_titleList.get(groupPosition)).remove(childPosition);
-                        _taskDetails.get(_titleList.get(groupPosition)).add(childPosition, "Daily task");
+                        // update database
+                        _db.updateTask(getGroupIndex(groupPosition), childPosition, "Daily Task");
+                        // update adapter
                         notifyDataSetInvalidated();
                     }})
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        _taskDetails.get(_titleList.get(groupPosition)).remove(childPosition);
-                        _taskDetails.get(_titleList.get(groupPosition)).add(childPosition, "One time task");
+                        // update database
+                        _db.updateTask(getGroupIndex(groupPosition), childPosition, "One time task");
+                        // update adapter
                         notifyDataSetInvalidated();
                     }})
                 .setNeutralButton("Cancel", null)
@@ -219,8 +235,9 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     }
 
     private void removeGroup(int groupPosition) {
-        _taskDetails.remove(getGroup(groupPosition));
-        _titleList.remove(getGroup(groupPosition));
+        // update database
+        _db.deleteTask(getGroupIndex(groupPosition));
+        // update adapter
         notifyDataSetInvalidated();
     }
 

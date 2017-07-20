@@ -34,6 +34,8 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import android.widget.EditText;
@@ -49,8 +51,10 @@ import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
-    ArrayList<String> titleList;
-    HashMap<String, ArrayList<String>> detailList;
+    List<String> _titleList;
+    HashMap<Integer, ArrayList<String>> _detailList; // _id of task is used as Key
+    List<Integer> _orderList; // hold _id of the task in order
+    DBHandler myDB;
     ExpandableListAdapter expListAdapter;
     ExpandableListView mView;
     int currYear, currMonth, currDay;
@@ -67,10 +71,13 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         mView = (ExpandableListView) findViewById(R.id.item_list);
         //   activityList = getArrayMem(getApplicationContext());
-        titleList = new ArrayList<String>();
-        detailList = new HashMap<String, ArrayList<String>>();
+        _titleList = new LinkedList<String>();
+        _detailList = new HashMap<Integer, ArrayList<String>>();
+        _orderList = new LinkedList<Integer>();
+        myDB = new DBHandler(this, _titleList, _detailList, _orderList);
         expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
-                titleList, detailList);
+                _titleList, _detailList, _orderList, myDB);
+        myDB.getAllTasks();
         updateView();
     }
     @Override
@@ -102,11 +109,6 @@ public class MainActivity extends AppCompatActivity {
 
                             boolean added = addTask(task);
 
-                            if(!added) {
-                                dialog.dismiss();
-                                notAdded();
-                            }
-
 //                            storeArrayMem(activityList, getApplicationContext());
                             updateView();
                         }})
@@ -130,8 +132,7 @@ public class MainActivity extends AppCompatActivity {
                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            detailList.clear();
-                                            titleList.clear();
+                                            myDB.clearAll();
 //                            storeArrayMem(activityList, getApplicationContext());
                                             updateView();
                                         }})
@@ -147,76 +148,34 @@ public class MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+    @Override
+    protected void onDestroy() {
+        myDB.close();
+        super.onDestroy();
+    }
 
-    public void updateView() {
+    public void updateView() { // update screen
 
         mView.setAdapter(expListAdapter);
 
     }
-/*
-    public static void storeArrayMem(ArrayList<String> inArrayList, Context context){
-        Set<String> addWrite = new HashSet<String>(inArrayList);
-        SharedPreferences WordSearchPutPrefs = context.getSharedPreferences("dbArrayValues",
-                Activity.MODE_PRIVATE);
-        SharedPreferences.Editor prefEditor = WordSearchPutPrefs.edit();
-        prefEditor.putStringSet("myArray", addWrite);
-        prefEditor.commit();
-    }
-    public static ArrayList getArrayMem(Context infoCon)
-    {
-        SharedPreferences WordSearchGetPrefs = infoCon.getSharedPreferences("dbArrayValues",
-                Activity.MODE_PRIVATE);
-        Set<String> tempSet = new HashSet<String>();
-        tempSet = WordSearchGetPrefs.getStringSet("myArray", tempSet);
-        return new ArrayList<String>(tempSet);
-    }
-*/
-
-    private void getTestData() {// not used anymore
-
-        //add titles
-        titleList.add("task 1");
-        titleList.add("task 2");
-        titleList.add("task 3");
-
-        fill("task 1");
-        fill("task 2");
-        fill("task 3");
-    }
 
     private boolean addTask(String taskTitle) {
-        if(titleList.contains(taskTitle)) {
-            return false;
-        }
+
         fill(taskTitle);
-        titleList.add(taskTitle);
-        Context context = getApplicationContext();
-        CharSequence text = "Task Created";
-        int duration = Toast.LENGTH_SHORT;
 
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
         return true;
-    }
-
-    private void removeTask(String title) {
-        detailList.remove(title);
-        titleList.remove(title);
     }
 
     private void fill(String title) {
         ArrayList<String> details = new ArrayList<String>(3);
+        // placeholder value
         details.add("");
         details.add("");
         details.add("");
 
         detailsInput(details, title);
-
-        //details.add("details here");
-        //details.add(1,"due date here");
-        //details.add(2,"is daily? here");
-
-        detailList.put(title, details);
+        updateView();
     }
 
     private Boolean detailsInput(final ArrayList<String> details, final String title) {
@@ -230,15 +189,10 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         String input = String.valueOf(textInput.getText());
                         details.remove(0);
-                        details.add(0, input);
-                        dateInput(details, title);
+                        details.add(0, input); // enter detail
+                        dateInput(details, title); // call input of date
                     }})
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        removeTask(title);
-                        updateView();
-                    }})
+                .setNegativeButton("Cancel", null)
                 .create();
         addQuery.show();
         return true;
@@ -262,19 +216,11 @@ public class MainActivity extends AppCompatActivity {
                         };
                         String dateString = dueDate.toString();
                         details.remove(1);
-                        details.add(1, dateString);
-                        dailyInput(details, title);
+                        details.add(1, dateString); // enter date
+                        dailyInput(details, title); // call input of daily
                     }
                 }, currYear, currMonth, currDay);
         dateDialog.setTitle("Due Date");
-        dateDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "CANCEL", new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == DialogInterface.BUTTON_NEGATIVE) {
-                            removeTask(title);
-                            updateView();
-                        }
-                    }
-                });
         dateDialog.show();
         return true;
     }
@@ -287,69 +233,24 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         details.remove(2);
-                        details.add(2, "Daily task");
+                        details.add(2, "Daily task"); // enter daily
+                        myDB.addTask(title, details); // save in database
+                        updateView();
                     }})
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         details.remove(2);
-                        details.add(2, "One time task");
-                    }})
-                .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        removeTask(title);
+                        details.add(2, "One time task"); // enter daily
+                        myDB.addTask(title, details); // save in database
                         updateView();
                     }})
+                .setNeutralButton("Cancel", null)
                 .create();
         addQuery.show();
         return true;
     }
 
-    private void notAdded() {
-        AlertDialog.Builder notAddedMsg =
-                new AlertDialog.Builder(MainActivity.this)
-                        .setTitle("Task Already Exists")
-                        .setMessage("A task with the same title already exists, please edit that task or choose a different title")
-                        .setNeutralButton("Close", null);
-        AlertDialog notAdded = notAddedMsg.create();
-        notAdded.show();
-    }
-
-
-    //save hashMap
-    private static void saveMap(String key, Map<String,String> inputMap){
-        SharedPreferences pSharedPref = getApplicationContext().getInstance().getSharedPreferences(USERDATA, Context.MODE_PRIVATE);
-        if (pSharedPref != null){
-            JSONObject jsonObject = new JSONObject(inputMap);
-            String jsonString = jsonObject.toString();
-            SharedPreferences.Editor editor = pSharedPref.edit();
-            editor.remove(key).commit();
-            editor.putString(key, jsonString);
-            editor.commit();
-        }
-    }
-
-    //load map
-    private static Map<String,String> loadMap(String key){
-        Map<String,String> outputMap = new HashMap<String,String>();
-        SharedPreferences pSharedPref = getApplicationContext().getInstance().getSharedPreferences(USERDATA, Context.MODE_PRIVATE);
-        try{
-            if (pSharedPref != null){
-                String jsonString = pSharedPref.getString(key, (new JSONObject()).toString());
-                JSONObject jsonObject = new JSONObject(jsonString);
-                Iterator<String> keysItr = jsonObject.keys();
-                while(keysItr.hasNext()) {
-                    String k = keysItr.next();
-                    String v = (String) jsonObject.get(k);
-                    outputMap.put(k,v);
-                }
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-        return outputMap;
-    }
 
 
 }
