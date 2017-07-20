@@ -70,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         mView = (ExpandableListView) findViewById(R.id.item_list);
-        //   activityList = getArrayMem(getApplicationContext());
         _titleList = new LinkedList<String>();
         _detailList = new HashMap<Integer, ArrayList<String>>();
         _orderList = new LinkedList<Integer>();
@@ -106,10 +105,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             String task = String.valueOf(textInput.getText());
-
-                            boolean added = addTask(task);
-
-//                            storeArrayMem(activityList, getApplicationContext());
+                            addTask(task);
                             updateView();
                         }})
                     .setNegativeButton("Cancel", null)
@@ -133,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
                                             myDB.clearAll();
-//                            storeArrayMem(activityList, getApplicationContext());
                                             updateView();
                                         }})
                                     .setNegativeButton("No", null)
