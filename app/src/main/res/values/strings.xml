@@ -1,7 +1,30 @@
 <resources>
     <string name="app_name">TickList</string>
-    <string name="action_addTask">Add</string>
     <string name="text_view">Text View Here</string>
+    <string name="action_addTask">Add</string>
     <string name="action_clearAll">Clear All</string>
     <string name="edit">Edit</string>
+
+    <string name="title_addTask">Add Task</string>
+    <string name="title_clearAll">Clear All</string>
+    <string name="title_clearAllConfirm">Clear All</string>
+    <string name="title_addDetails">Details</string>
+    <string name="title_addDate">Due Date</string>
+    <string name="title_addDaily">Daily</string>
+    <string name="title_deleteTask">Delete Task</string>
+    <string name="title_editDetails">Edit Details</string>
+    <string name="title_editDate">Edit Due Date</string>
+    <string name="title_editDaily">Edit Daily</string>
+
+    <string name="prompt_addTask">Enter title of task</string>
+    <string name="prompt_clearAll">Are you sure you want to clear all tasks?</string>
+    <string name="prompt_clearAllConfirm">This process cannot be reverted, proceed to clear all?</string>
+    <string name="prompt_addDetails">Enter details of task</string>
+    <string name="prompt_addDaily">Is this task to be repeated daily?</string>
+    <string name="prompt_editDetails">Enter new details of task</string>
+    <string name="prompt_editDaily">Is this task to be repeated daily?</string>
+
+    <string name="message_isDaily">Daily task</string>
+    <string name="message_isNotDaily">One time task</string>
+
 </resources>

@@ -60,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     int currYear, currMonth, currDay;
 
     //memory saver.
-    public static final String USERDATA = "MyVariables";
+    //public static final String USERDATA = "MyVariables";
 
 
     @Override
@@ -98,8 +98,8 @@ public class MainActivity extends AppCompatActivity {
             //add new task
             final EditText textInput = new EditText(this);
             final AlertDialog addQuery = new AlertDialog.Builder(this)
-                    .setTitle("Add Task")
-                    .setMessage("Enter title of task")
+                    .setTitle(R.string.title_addTask)
+                    .setMessage(R.string.prompt_addTask)
                     .setView(textInput)
                     .setPositiveButton("Add", new DialogInterface.OnClickListener() {
                         @Override
@@ -117,14 +117,14 @@ public class MainActivity extends AppCompatActivity {
 
         if (id == R.id.action_clearAll) {
             AlertDialog clearQuery = new AlertDialog.Builder(this)
-                    .setTitle("Clear All")
-                    .setMessage("Are you sure you want to clear all tasks?")
+                    .setTitle(R.string.title_clearAll)
+                    .setMessage(R.string.prompt_clearAll)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             AlertDialog confirmQuery = new AlertDialog.Builder(MainActivity.this)
-                                    .setTitle("Clear All")
-                                    .setMessage("This process cannot be reverted, proceed to clear all?")
+                                    .setTitle(R.string.title_clearAllConfirm)
+                                    .setMessage(R.string.prompt_clearAllConfirm)
                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
@@ -176,8 +176,8 @@ public class MainActivity extends AppCompatActivity {
     private Boolean detailsInput(final ArrayList<String> details, final String title) {
         final EditText textInput = new EditText(this);
         final AlertDialog addQuery = new AlertDialog.Builder(this)
-                .setTitle("Details")
-                .setMessage("Enter details of task")
+                .setTitle(R.string.title_addDetails)
+                .setMessage(R.string.prompt_addDetails)
                 .setView(textInput)
                 .setPositiveButton("Done", new DialogInterface.OnClickListener() {
                     @Override
@@ -215,15 +215,15 @@ public class MainActivity extends AppCompatActivity {
                         dailyInput(details, title); // call input of daily
                     }
                 }, currYear, currMonth, currDay);
-        dateDialog.setTitle("Due Date");
+        dateDialog.setTitle(R.string.title_addDate);
         dateDialog.show();
         return true;
     }
 
     private boolean dailyInput(final ArrayList<String> details, final String title) {
         final AlertDialog addQuery = new AlertDialog.Builder(this)
-                .setTitle("Daily")
-                .setMessage("Is this task to be repeated daily?")
+                .setTitle(R.string.title_addDaily)
+                .setMessage(R.string.prompt_addDaily)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

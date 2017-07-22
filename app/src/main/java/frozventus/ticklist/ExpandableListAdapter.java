@@ -98,7 +98,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             @Override
             public void onClick(View v) { // delete confirmation
                 AlertDialog.Builder deleteQuery = new AlertDialog.Builder(_context)
-                        .setTitle("Delete Task")
+                        .setTitle(R.string.title_deleteTask)
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
@@ -157,8 +157,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         // edit detail of task
         final EditText textInput = new EditText(_context); // text input
         final AlertDialog addQuery = new AlertDialog.Builder(_context) // text input popup
-                .setTitle("Edit Details")
-                .setMessage("Enter new details of task")
+                .setTitle(R.string.title_editDetails)
+                .setMessage(R.string.prompt_editDetails)
                 .setView(textInput)
                 .setPositiveButton("Done", new DialogInterface.OnClickListener() {
                     @Override
@@ -198,15 +198,15 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                                 notifyDataSetInvalidated();
                             }
                         }, currYear, currMonth, currDay);
-        dateDialog.setTitle("Edit Due Date");
+        dateDialog.setTitle(R.string.title_editDate);
         dateDialog.show();
         return true;
     }
 
     private boolean editDaily(final int groupPosition, final int childPosition) {
         final AlertDialog addQuery = new AlertDialog.Builder(_context)
-                .setTitle("Edit Daily")
-                .setMessage("Is this task to be repeated daily?")
+                .setTitle(R.string.title_editDaily)
+                .setMessage(R.string.prompt_editDaily)
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
