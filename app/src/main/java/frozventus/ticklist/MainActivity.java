@@ -1,6 +1,7 @@
 package frozventus.ticklist;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
@@ -28,6 +29,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.lang.reflect.Array;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -43,6 +45,7 @@ import android.content.DialogInterface;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.app.Activity;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -58,7 +61,7 @@ public class MainActivity extends AppCompatActivity {
     DBHandler myDB;
     ExpandableListAdapter expListAdapter;
     ExpandableListView mView;
-    int currYear, currMonth, currDay;
+    int currYear, currMonth, currDay, currHour, currMinute;
 
     //memory saver.
     //public static final String USERDATA = "MyVariables";
@@ -165,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void fill(String title) {
-        ArrayList<String> details = new ArrayList<String>(3);
+        ArrayList<String> details = new ArrayList<String>();
         // placeholder value
         details.add("");
         details.add("");
@@ -212,13 +215,35 @@ public class MainActivity extends AppCompatActivity {
                             }
                         };
                         String dateString = dueDate.toString();
-                        details.remove(1);
-                        details.add(1, dateString); // enter date
-                        dailyInput(details, title); // call input of daily
+                        timeInput(details, title, dateString); // call input of daily
                     }
                 }, currYear, currMonth, currDay);
         dateDialog.setTitle(R.string.title_addDate);
         dateDialog.show();
+        return true;
+    }
+
+    private Boolean timeInput(final ArrayList<String> details, final String title, final String dateString) {
+        final Calendar c = Calendar.getInstance();
+        currHour = c.get(Calendar.HOUR_OF_DAY);
+        currMinute = c.get(Calendar.MINUTE);
+        final TimePickerDialog timeDialog =
+                new TimePickerDialog(this, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hour, int minute) {
+                                String timeDateString = dateString.concat("  " + timeFormat(hour) +
+                                        ":" + timeFormat(minute));
+                                details.remove(1);
+                                details.add(1, timeDateString); // enter date
+                                dailyInput(details, title); // call input of daily
+                            }
+                            public String timeFormat(int input) {
+                                return (input<10)?("0" + input):("" + input);
+                            }
+                        }, currHour, currMinute, true);
+        timeDialog.setTitle(R.string.title_addTime);
+        timeDialog.show();
         return true;
     }
 
@@ -247,7 +272,5 @@ public class MainActivity extends AppCompatActivity {
         addQuery.show();
         return true;
     }
-
-
 
 }

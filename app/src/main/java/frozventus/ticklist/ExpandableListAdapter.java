@@ -1,6 +1,7 @@
 package frozventus.ticklist;
 
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
@@ -16,6 +17,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
@@ -32,7 +34,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private List<String> _dateList;
     private HashMap<Integer, ArrayList<String>> _taskDetails; // _id of task is used as Key
     private List<Integer> _orderList; // hold _id of the task in order
-    private int currYear, currMonth, currDay;
+    private int currYear, currMonth, currDay, currHour, currMinute;
     private DBHandler _db;
 
     public ExpandableListAdapter(Context context, List<String> titleList,
@@ -228,14 +230,36 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                                     }
                                 };
                                 String dateString = dueDate.toString();
-                                // update database
-                                _db.updateTask(getGroupIndex(groupPosition), childPosition, dateString);
-                                // update adapter
-                                notifyDataSetInvalidated();
+                                timeInput(groupPosition, childPosition, dateString);
                             }
                         }, currYear, currMonth, currDay);
         dateDialog.setTitle(R.string.title_editDate);
         dateDialog.show();
+        return true;
+    }
+
+    private Boolean timeInput(final int groupPosition, final int childPosition, final String dateString) {
+        final Calendar c = Calendar.getInstance();
+        currHour = c.get(Calendar.HOUR_OF_DAY);
+        currMinute = c.get(Calendar.MINUTE);
+        final TimePickerDialog timeDialog =
+                new TimePickerDialog(_context, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker view, int hour, int minute) {
+                                String timeDateString = dateString.concat("  " + timeFormat(hour) +
+                                        ":" + timeFormat(minute));
+                                // update database
+                                _db.updateTask(getGroupIndex(groupPosition), childPosition, timeDateString);
+                                // update adapter
+                                notifyDataSetInvalidated();
+                            }
+                            public String timeFormat(int input) {
+                                return (input<10)?("0" + input):("" + input);
+                            }
+                        }, currHour, currMinute, true);
+        timeDialog.setTitle(R.string.title_editTime);
+        timeDialog.show();
         return true;
     }
 
