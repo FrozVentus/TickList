@@ -29,16 +29,19 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     private Context _context;
     private List<String> _titleList;
+    private List<String> _dateList;
     private HashMap<Integer, ArrayList<String>> _taskDetails; // _id of task is used as Key
     private List<Integer> _orderList; // hold _id of the task in order
     private int currYear, currMonth, currDay;
     private DBHandler _db;
 
     public ExpandableListAdapter(Context context, List<String> titleList,
+                                 List<String> dateList,
                                  HashMap<Integer, ArrayList<String>> taskDetails,
                                  List<Integer> orderList, DBHandler db){
         _context = context;
         _titleList = titleList;
+        _dateList = dateList;
         _taskDetails = taskDetails;
         _orderList = orderList;
         _db = db;
@@ -56,7 +59,10 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int groupPosition) {
-        return _titleList.get(groupPosition);
+        String groupString = _titleList.get(groupPosition) +
+                System.getProperty("line.separator") +
+                _dateList.get(groupPosition);
+        return groupString;
     }
 
     @Override
@@ -82,6 +88,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     @Override
     public View getGroupView(final int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         String title = (String)getGroup(groupPosition);
+
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) this._context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -91,6 +98,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         titleView.setTypeface(null, Typeface.BOLD);
         titleView.setText(title); // set title
 
+        Button editButton = (Button)convertView.findViewById(R.id.editGroup); // edit button
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                editTitle(groupPosition);
+            }
+        });
+        editButton.setFocusable(false); // allow the text to be clickable
 
         ImageButton delete = (ImageButton)convertView.findViewById(R.id.delete); // delete button
         delete.setOnClickListener(new View.OnClickListener() {
@@ -128,7 +143,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                 .findViewById(R.id.taskDetails);
         detailView.setText(details); // set detail
 
-        Button editButton = (Button)convertView.findViewById(R.id.editButton); // edit button
+        Button editButton = (Button)convertView.findViewById(R.id.editChild); // edit button
         editButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -151,6 +166,27 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     private int getGroupIndex(int groupPostion) { //used to obtain index of task saved in database
         return _orderList.get(groupPostion);
+    }
+
+    private boolean editTitle(final int groupPosition) {
+        final EditText textInput = new EditText(_context);
+        final AlertDialog addQuery = new AlertDialog.Builder(_context)
+                .setTitle(R.string.title_editTask)
+                .setMessage(R.string.prompt_editTask)
+                .setView(textInput)
+                .setPositiveButton("Done", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String task = String.valueOf(textInput.getText());
+                        // update datebase
+                        _db.updateTitle(getGroupIndex(groupPosition), task);
+                        // update adapter
+                        notifyDataSetInvalidated();
+                    }})
+                .setNegativeButton("Cancel", null)
+                .create();
+        addQuery.show();
+        return true;
     }
 
     private boolean editDetails(final int groupPosition, final int childPosition) {

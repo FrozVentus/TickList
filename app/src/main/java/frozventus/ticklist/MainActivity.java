@@ -52,6 +52,7 @@ import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity {
     List<String> _titleList;
+    List<String> _dateList;
     HashMap<Integer, ArrayList<String>> _detailList; // _id of task is used as Key
     List<Integer> _orderList; // hold _id of the task in order
     DBHandler myDB;
@@ -71,11 +72,12 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         mView = (ExpandableListView) findViewById(R.id.item_list);
         _titleList = new LinkedList<String>();
+        _dateList = new LinkedList<String>();
         _detailList = new HashMap<Integer, ArrayList<String>>();
         _orderList = new LinkedList<Integer>();
-        myDB = new DBHandler(this, _titleList, _detailList, _orderList);
+        myDB = new DBHandler(this, _titleList, _dateList, _detailList, _orderList);
         expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
-                _titleList, _detailList, _orderList, myDB);
+                _titleList, _dateList, _detailList, _orderList, myDB);
         myDB.getAllTasks();
         updateView();
     }

@@ -12,6 +12,7 @@
     <string name="title_addDate">Due Date</string>
     <string name="title_addDaily">Daily</string>
     <string name="title_deleteTask">Delete Task</string>
+    <string name="title_editTask">Edit Task</string>
     <string name="title_editDetails">Edit Details</string>
     <string name="title_editDate">Edit Due Date</string>
     <string name="title_editDaily">Edit Daily</string>
@@ -21,6 +22,7 @@
     <string name="prompt_clearAllConfirm">This process cannot be reverted, proceed to clear all?</string>
     <string name="prompt_addDetails">Enter details of task</string>
     <string name="prompt_addDaily">Is this task to be repeated daily?</string>
+    <string name="prompt_editTask">Enter new title of task</string>
     <string name="prompt_editDetails">Enter new details of task</string>
     <string name="prompt_editDaily">Is this task to be repeated daily?</string>
 

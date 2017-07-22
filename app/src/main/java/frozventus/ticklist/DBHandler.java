@@ -26,15 +26,17 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String TASK_COLUMN_TIME = "time"; //unused as of now
 
     private List<String> _titleList;
+    private List<String> _dateList;
     private HashMap<Integer, ArrayList<String>> _detailList; // _id of task is used as Key
     private List<Integer> _titleOrder; // hold _id of the task in order
     private Context _context;
 
 
-    public DBHandler(Context context, List<String> titleList,
+    public DBHandler(Context context, List<String> titleList, List<String> dateList,
                      HashMap<Integer, ArrayList<String>> detailList, List<Integer> titleOrder) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         _titleList = titleList;
+        _dateList = dateList;
         _detailList = detailList;
         _titleOrder = titleOrder;
         _context = context;
@@ -103,6 +105,7 @@ public class DBHandler extends SQLiteOpenHelper {
     // Also update what is shown on screen
     public boolean getAllTasks() {
         List<String> newTitleList = new LinkedList<String>();
+        List<String> newDateList = new LinkedList<String>();
         HashMap<Integer, ArrayList<String>> newDetailList =
                 new HashMap<Integer, ArrayList<String>>();
         List<Integer> newOrder = new LinkedList<Integer>();
@@ -115,14 +118,24 @@ public class DBHandler extends SQLiteOpenHelper {
         // looping through all rows and adding to list
         if (cursor.moveToFirst()) {
             do {
+                // get order
                 Integer id = cursor.getInt(0);
                 newOrder.add(id);
+                // get title
                 newTitleList.add(cursor.getString(1));
+
                 ArrayList<String> currDetails = new ArrayList<String>();
+                // get details
                 currDetails.add(cursor.getString(2));
-                currDetails.add(cursor.getString(3));
+                // get Date
+                String date = "Due: " + cursor.getString(3);
+                currDetails.add(date);
+                newDateList.add(date);
+                // get Daily
                 currDetails.add(cursor.getString(4));
+                // put into hashmap
                 newDetailList.put(id, currDetails);
+
             } while (cursor.moveToNext());
         }
         // update _titleOrder
@@ -131,6 +144,9 @@ public class DBHandler extends SQLiteOpenHelper {
         // update _titleList
         _titleList.clear();
         _titleList.addAll(newTitleList);
+        // update _dateList
+        _dateList.clear();
+        _dateList.addAll(newDateList);
         // update _detailList
         _detailList.clear();
         _detailList.putAll(newDetailList);
@@ -149,6 +165,20 @@ public class DBHandler extends SQLiteOpenHelper {
         // return count
         return cursor.getCount();
     }
+
+    // Updating title
+    public int updateTitle(int id, String newString) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(TASK_COLUMN_TITLE, newString);
+
+        db.update(TASK_TABLE_NAME, values,TASK_COLUMN_ID + " = ?",
+                new String[]{String.valueOf(id)});
+        getAllTasks();
+        return id;
+    }
+
     // Updating a task
     public int updateTask(int id, int position, String newString) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -156,17 +186,17 @@ public class DBHandler extends SQLiteOpenHelper {
         switch(position) { //which detail to edit
             case 0:
                 values.put(TASK_COLUMN_DETAILS, newString);
-                values.put(TASK_COLUMN_DATE, _detailList.get(id).get(1));
-                values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(2));
+                //values.put(TASK_COLUMN_DATE, _detailList.get(id).get(1));
+                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(2));
                 break;
             case 1:
-                values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(0));
+                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(0));
                 values.put(TASK_COLUMN_DATE, newString);
-                values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(2));
+                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(2));
                 break;
             case 2:
-                values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(0));
-                values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(1));
+                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(0));
+                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(1));
                 values.put(TASK_COLUMN_DAILY, newString);
                 break;
         }

@@ -12,6 +12,14 @@
         android:textSize="18sp"
         android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/editGroup"
+        android:text="@string/edit"
+        android:textSize="14sp"
+        android:layout_gravity="end"/>
+
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

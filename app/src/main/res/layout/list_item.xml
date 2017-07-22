@@ -14,7 +14,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/editButton"
+        android:id="@+id/editChild"
         android:text="@string/edit"
         android:textSize="14sp"
         android:layout_gravity="end"/>
