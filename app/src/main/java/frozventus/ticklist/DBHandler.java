@@ -12,7 +12,7 @@ import java.util.*;
 
 public class DBHandler extends SQLiteOpenHelper {
     // Database Version
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     // Database Name
     private static final String DATABASE_NAME = "tasksInfo";
     // Tasks table name
@@ -22,7 +22,6 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String TASK_COLUMN_TITLE = "title";
     private static final String TASK_COLUMN_DETAILS = "details";
     private static final String TASK_COLUMN_DATE = "date";
-    private static final String TASK_COLUMN_DAILY ="isDaily";
     private static final String TASK_COLUMN_LASTCOMPLETED = "lastCompleted";
 
     private List<String> _titleList;
@@ -52,7 +51,6 @@ public class DBHandler extends SQLiteOpenHelper {
                 TASK_COLUMN_TITLE + " TEXT, " +
                 TASK_COLUMN_DETAILS + " TEXT, " +
                 TASK_COLUMN_DATE + " TEXT, " +
-                TASK_COLUMN_DAILY + " TEXT, " +
                 TASK_COLUMN_LASTCOMPLETED + " TEXT" +
         ")";
         db.execSQL(CREATE_CONTACTS_TABLE);
@@ -69,7 +67,6 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(TASK_COLUMN_TITLE, "Example Task"); // TaskName
         values.put(TASK_COLUMN_DETAILS, "Your Task Detail Here"); // Details
         values.put(TASK_COLUMN_DATE, "Task Due Date & Time Here"); // Date
-        values.put(TASK_COLUMN_DAILY, "Task Daily Indicator Here"); // Daily
         values.put(TASK_COLUMN_LASTCOMPLETED, "null"); // Last Completed
 
         // Inserting Row
@@ -96,7 +93,6 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(TASK_COLUMN_TITLE, title); // TaskName
         values.put(TASK_COLUMN_DETAILS, details.get(0)); // Details
         values.put(TASK_COLUMN_DATE, details.get(1)); // Date
-        values.put(TASK_COLUMN_DAILY, details.get(2)); // Daily
         values.put(TASK_COLUMN_LASTCOMPLETED, "null"); // Last Completed
 
         // Inserting Row
@@ -139,13 +135,11 @@ public class DBHandler extends SQLiteOpenHelper {
                 String date = "Due :  " + cursor.getString(3);
                 currDetails.add(date);
                 newDateList.add(date);
-                // get daily
-                currDetails.add(cursor.getString(4));
                 // put into hashmap
                 newDetailList.put(id, currDetails);
 
                 // get last completed
-                newLastCompleted.add(cursor.getString(5));
+                newLastCompleted.add(cursor.getString(4));
 
             } while (cursor.moveToNext());
         }
@@ -205,9 +199,6 @@ public class DBHandler extends SQLiteOpenHelper {
                 values.put(TASK_COLUMN_DATE, newString);
                 break;
             case 2:
-                values.put(TASK_COLUMN_DAILY, newString);
-                break;
-            case 3:
                 values.put(TASK_COLUMN_LASTCOMPLETED, newString);
         }
         // updating row

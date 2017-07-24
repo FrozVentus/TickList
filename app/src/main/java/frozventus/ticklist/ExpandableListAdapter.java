@@ -69,10 +69,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                 System.getProperty("line.separator") +
                 System.getProperty("line.separator") +
                 _dateList.get(groupPosition);
-        String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
-        if(isDaily.equals("Daily Task")) { // check if is daily task
-            groupString = groupString.concat("   (Daily Task)");
-        }
         return groupString;
     }
 
@@ -128,8 +124,8 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             setCheckboxEmpty(checkbox, groupPosition, dateString);
         }
         else { // completed task
-            String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
-            if(isDaily.equals("Daily Task")) { // check if is daily task
+            String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(1).substring(0,5); // get daily
+            if(isDaily.equals("Daily")) { // check if is daily task
                 if(lastCompleted.equals(dateString)) {// completed on that day
                     setCheckboxFull(checkbox, groupPosition, dateString);
                 }
@@ -186,7 +182,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             public void onClick(View v) { // checkbox
                 checkbox.setImageResource(R.drawable.ic_checkbox_full);
                 setCheckboxFull(checkbox, groupPosition, dateString);
-                _db.updateTask(getGroupIndex(groupPosition), 3, dateString);
+                _db.updateTask(getGroupIndex(groupPosition), 2, dateString);
             }
         });
         checkbox.setFocusable(false); // allow the text to be clickable
@@ -200,7 +196,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             public void onClick(View v) { // checkbox
                 checkbox.setImageResource(R.drawable.ic_checkbox_empty);
                 setCheckboxEmpty(checkbox, groupPosition, dateString);
-                _db.updateTask(getGroupIndex(groupPosition), 3, "null");
+                _db.updateTask(getGroupIndex(groupPosition), 2, "null");
             }
         });
         checkbox.setFocusable(false); // allow the text to be clickable
@@ -208,7 +204,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public View getChildView(final int groupPosition, final int childPosition, boolean isLastChild, View convertView, ViewGroup parent) {
-        final String details = (String) getChild(groupPosition, childPosition);
+
+        String details = (String) getChild(groupPosition, childPosition);
+
+        if(childPosition == 1) {
+            details = details.substring(7);
+        }
 
         if (convertView == null) {
             LayoutInflater infalInflater = (LayoutInflater) this._context
@@ -228,9 +229,6 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                                 editDetails(groupPosition, childPosition);
                                 break;
                             case 1:
-                                editDate(groupPosition, childPosition);
-                                break;
-                            case 2:
                                 editDaily(groupPosition, childPosition);
                                 break;
                         }
@@ -304,7 +302,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                                     }
                                 };
                                 String dateString = dueDate.toString();
-                                timeInput(groupPosition, childPosition, dateString);
+                                editTime(groupPosition, childPosition, dateString);
                             }
                         }, currYear, currMonth, currDay);
         dateDialog.setTitle(R.string.title_editDate);
@@ -312,7 +310,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         return true;
     }
 
-    private Boolean timeInput(final int groupPosition, final int childPosition, final String dateString) {
+    private Boolean editTime(final int groupPosition, final int childPosition, final String dateString) {
         final Calendar c = Calendar.getInstance();
         currHour = c.get(Calendar.HOUR_OF_DAY);
         currMinute = c.get(Calendar.MINUTE);
@@ -344,18 +342,14 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // update database
-                        _db.updateTask(getGroupIndex(groupPosition), childPosition, "Daily Task");
-                        // update adapter
-                        notifyDataSetInvalidated();
+                        // ask for due time
+                        editTime(groupPosition, childPosition, "Daily");
                     }})
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        // update database
-                        _db.updateTask(getGroupIndex(groupPosition), childPosition, "One time task");
-                        // update adapter
-                        notifyDataSetInvalidated();
+                        // ask for due date
+                        editDate(groupPosition, childPosition);
                     }})
                 .setNeutralButton("Cancel", null)
                 .create();

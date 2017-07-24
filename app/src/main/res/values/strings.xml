@@ -16,9 +16,9 @@
     <string name="title_deleteTask">Delete Task</string>
     <string name="title_editTask">Edit Task</string>
     <string name="title_editDetails">Edit Details</string>
-    <string name="title_editDate">Edit Due Date</string>
-    <string name="title_editTime">Edit Time Due</string>
-    <string name="title_editDaily">Edit Daily</string>
+    <string name="title_editDate">Select Due Date</string>
+    <string name="title_editTime">Select Time Due</string>
+    <string name="title_editDaily"> Daily</string>
 
     <string name="prompt_addTask">Enter title of task</string>
     <string name="prompt_clearAll">Are you sure you want to clear all tasks?</string>
@@ -28,8 +28,5 @@
     <string name="prompt_editTask">Enter new title of task</string>
     <string name="prompt_editDetails">Enter new details of task</string>
     <string name="prompt_editDaily">Is this task to be repeated daily?</string>
-
-    <string name="message_isDaily">Daily task</string>
-    <string name="message_isNotDaily">One time task</string>
 
 </resources>

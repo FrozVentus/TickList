@@ -175,8 +175,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<String> details = new ArrayList<String>();
         // placeholder value
         details.add(""); // details
-        details.add(""); // date & time
-        details.add(""); // daily
+        details.add(""); // date & time & daily
 
         detailsInput(details, title);
         updateView();
@@ -194,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                         String input = String.valueOf(textInput.getText());
                         details.remove(0);
                         details.add(0, input); // enter detail
-                        dateInput(details, title); // call input of date
+                        dailyInput(details, title); // call input of date
                     }})
                 .setNegativeButton("Cancel", null)
                 .create();
@@ -240,7 +239,8 @@ public class MainActivity extends AppCompatActivity {
                                         ":" + timeFormat(minute));
                                 details.remove(1);
                                 details.add(1, timeDateString); // enter date
-                                dailyInput(details, title); // call input of daily
+                                myDB.addTask(title, details); // save in database
+                                updateView();
                             }
                             public String timeFormat(int input) {
                                 return (input<10)?("0" + input):("" + input);
@@ -258,18 +258,12 @@ public class MainActivity extends AppCompatActivity {
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        details.remove(2);
-                        details.add(2, "Daily Task"); // enter daily
-                        myDB.addTask(title, details); // save in database
-                        updateView();
+                        timeInput(details, title, "Daily");
                     }})
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        details.remove(2);
-                        details.add(2, "One time task"); // enter daily
-                        myDB.addTask(title, details); // save in database
-                        updateView();
+                        dateInput(details, title);// enter due date
                     }})
                 .setNeutralButton("Cancel", null)
                 .create();
