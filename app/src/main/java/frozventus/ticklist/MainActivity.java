@@ -14,6 +14,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.ExpandedMenuView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -84,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
                 _titleList, _dateList, _detailList, _orderList, _lastCompleted, myDB);
         myDB.getAllTasks();
-        myDB.initialPlaceholder(); // debug
+        // myDB.initialPlaceholder(); // debug
         updateView();
     }
     @Override

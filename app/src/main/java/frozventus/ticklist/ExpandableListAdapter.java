@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -151,6 +152,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
             }
         });
         editButton.setFocusable(false); // allow the text to be clickable
+
 
         // set delete button
         ImageButton delete = (ImageButton)convertView.findViewById(R.id.delete); // delete button
