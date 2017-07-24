@@ -234,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute) {
-                                String timeDateString = dateString.concat("  " + timeFormat(hour) +
+                                String timeDateString = dateString.concat("   " + timeFormat(hour) +
                                         ":" + timeFormat(minute));
                                 details.remove(1);
                                 details.add(1, timeDateString); // enter date
@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         details.remove(2);
-                        details.add(2, "Daily task"); // enter daily
+                        details.add(2, "Daily Task"); // enter daily
                         myDB.addTask(title, details); // save in database
                         updateView();
                     }})

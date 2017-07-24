@@ -64,14 +64,13 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int groupPosition) {
-        String topString = _titleList.get(groupPosition);
-        String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
-        if(isDaily.equals("Daily task")) { // check if is daily task
-            topString = topString.concat(" (Daily Task)");
-        }
-        String groupString = topString +
+        String groupString = _titleList.get(groupPosition) +
                 System.getProperty("line.separator") +
                 _dateList.get(groupPosition);
+        String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
+        if(isDaily.equals("Daily Task")) { // check if is daily task
+            groupString = groupString.concat("   (Daily Task)");
+        }
         return groupString;
     }
 
@@ -128,7 +127,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         }
         else { // completed task
             String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
-            if(isDaily.equals("Daily task")) { // check if is daily task
+            if(isDaily.equals("Daily Task")) { // check if is daily task
                 if(lastCompleted.equals(dateString)) {// completed on that day
                     setCheckboxFull(checkbox, groupPosition, dateString);
                 }
@@ -319,7 +318,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute) {
-                                String timeDateString = dateString.concat("  " + timeFormat(hour) +
+                                String timeDateString = dateString.concat("   " + timeFormat(hour) +
                                         ":" + timeFormat(minute));
                                 // update database
                                 _db.updateTask(getGroupIndex(groupPosition), childPosition, timeDateString);
