@@ -55,9 +55,10 @@ public class DBHandler extends SQLiteOpenHelper {
                 TASK_COLUMN_DAILY + " TEXT, " +
                 TASK_COLUMN_LASTCOMPLETED + " TEXT" +
         ")";
+        db.execSQL(CREATE_CONTACTS_TABLE);
+
         //debug
         // Toast.makeText(_context, CREATE_CONTACTS_TABLE, Toast.LENGTH_LONG).show();
-        db.execSQL(CREATE_CONTACTS_TABLE);
         initialPlaceholder();
     }
 
