@@ -206,7 +206,7 @@ public class MainActivity extends AppCompatActivity {
         currMonth = c.get(Calendar.MONTH);
         currDay = c.get(Calendar.DAY_OF_MONTH);
         final DatePickerDialog dateDialog =
-                new DatePickerDialog(this, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                new DatePickerDialog(this, R.style.CustomDialog ,
                         new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -230,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
         currHour = c.get(Calendar.HOUR_OF_DAY);
         currMinute = c.get(Calendar.MINUTE);
         final TimePickerDialog timeDialog =
-                new TimePickerDialog(this, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                new TimePickerDialog(this, R.style.CustomDialog,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute) {

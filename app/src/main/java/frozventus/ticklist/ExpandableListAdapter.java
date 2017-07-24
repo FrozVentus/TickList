@@ -291,7 +291,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         currMonth = c.get(Calendar.MONTH);
         currDay = c.get(Calendar.DAY_OF_MONTH);
         final DatePickerDialog dateDialog = // date picker popup
-                new DatePickerDialog(_context, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                new DatePickerDialog(_context, R.style.CustomDialog,
                         new DatePickerDialog.OnDateSetListener() {
                             @Override
                             public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -315,7 +315,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         currHour = c.get(Calendar.HOUR_OF_DAY);
         currMinute = c.get(Calendar.MINUTE);
         final TimePickerDialog timeDialog =
-                new TimePickerDialog(_context, android.app.AlertDialog.THEME_HOLO_LIGHT,
+                new TimePickerDialog(_context, R.style.CustomDialog,
                         new TimePickerDialog.OnTimeSetListener() {
                             @Override
                             public void onTimeSet(TimePicker view, int hour, int minute) {
