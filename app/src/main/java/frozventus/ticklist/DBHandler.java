@@ -59,10 +59,10 @@ public class DBHandler extends SQLiteOpenHelper {
 
         //debug
         // Toast.makeText(_context, CREATE_CONTACTS_TABLE, Toast.LENGTH_LONG).show();
-        initialPlaceholder();
     }
 
     public void initialPlaceholder() {
+        this.clearAll();
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();

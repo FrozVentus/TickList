@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
         expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
                 _titleList, _dateList, _detailList, _orderList, _lastCompleted, myDB);
         myDB.getAllTasks();
+        myDB.initialPlaceholder(); // debug
         updateView();
     }
     @Override
