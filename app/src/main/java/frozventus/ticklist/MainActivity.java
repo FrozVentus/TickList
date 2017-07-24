@@ -54,10 +54,11 @@ import org.json.JSONObject;
 
 
 public class MainActivity extends AppCompatActivity {
-    List<String> _titleList;
-    List<String> _dateList;
+    List<String> _titleList; // title of task
+    List<String> _dateList; // list of date due
     HashMap<Integer, ArrayList<String>> _detailList; // _id of task is used as Key
     List<Integer> _orderList; // hold _id of the task in order
+    List<String> _lastCompleted; // date of task last completed, value will be empty if undone
     DBHandler myDB;
     ExpandableListAdapter expListAdapter;
     ExpandableListView mView;
@@ -78,9 +79,10 @@ public class MainActivity extends AppCompatActivity {
         _dateList = new LinkedList<String>();
         _detailList = new HashMap<Integer, ArrayList<String>>();
         _orderList = new LinkedList<Integer>();
-        myDB = new DBHandler(this, _titleList, _dateList, _detailList, _orderList);
+        _lastCompleted = new LinkedList<String>();
+        myDB = new DBHandler(this, _titleList, _dateList, _detailList, _orderList, _lastCompleted);
         expListAdapter = new frozventus.ticklist.ExpandableListAdapter(this,
-                _titleList, _dateList, _detailList, _orderList, myDB);
+                _titleList, _dateList, _detailList, _orderList, _lastCompleted, myDB);
         myDB.getAllTasks();
         updateView();
     }
@@ -170,9 +172,9 @@ public class MainActivity extends AppCompatActivity {
     private void fill(String title) {
         ArrayList<String> details = new ArrayList<String>();
         // placeholder value
-        details.add("");
-        details.add("");
-        details.add("");
+        details.add(""); // details
+        details.add(""); // date & time
+        details.add(""); // daily
 
         detailsInput(details, title);
         updateView();

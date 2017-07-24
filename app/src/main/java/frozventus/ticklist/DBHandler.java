@@ -23,22 +23,25 @@ public class DBHandler extends SQLiteOpenHelper {
     private static final String TASK_COLUMN_DETAILS = "details";
     private static final String TASK_COLUMN_DATE = "date";
     private static final String TASK_COLUMN_DAILY ="isDaily";
-    private static final String TASK_COLUMN_TIME = "time"; //unused as of now
+    private static final String TASK_COLUMN_LASTCOMPLETED = "lastCompleted";
 
     private List<String> _titleList;
     private List<String> _dateList;
     private HashMap<Integer, ArrayList<String>> _detailList; // _id of task is used as Key
     private List<Integer> _titleOrder; // hold _id of the task in order
+    private List<String> _lastCompleted;
     private Context _context;
 
 
     public DBHandler(Context context, List<String> titleList, List<String> dateList,
-                     HashMap<Integer, ArrayList<String>> detailList, List<Integer> titleOrder) {
+                     HashMap<Integer, ArrayList<String>> detailList, List<Integer> titleOrder,
+                     List<String> lastCompleted) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         _titleList = titleList;
         _dateList = dateList;
         _detailList = detailList;
         _titleOrder = titleOrder;
+        _lastCompleted = lastCompleted;
         _context = context;
     }
 
@@ -49,8 +52,8 @@ public class DBHandler extends SQLiteOpenHelper {
                 TASK_COLUMN_TITLE + " TEXT, " +
                 TASK_COLUMN_DETAILS + " TEXT, " +
                 TASK_COLUMN_DATE + " TEXT, " +
-                TASK_COLUMN_DAILY + " TEXT" +
-                //TASK_COLUMN_TIME + "TEXT " +
+                TASK_COLUMN_DAILY + " TEXT, " +
+                TASK_COLUMN_LASTCOMPLETED + " TEXT" +
         ")";
         //debug
         // Toast.makeText(_context, CREATE_CONTACTS_TABLE, Toast.LENGTH_LONG).show();
@@ -73,12 +76,12 @@ public class DBHandler extends SQLiteOpenHelper {
         values.put(TASK_COLUMN_DETAILS, details.get(0)); // Details
         values.put(TASK_COLUMN_DATE, details.get(1)); // Date
         values.put(TASK_COLUMN_DAILY, details.get(2)); // Daily
-        //values.put(TASK_COLUMN_TIME, details.get(3)); // Time
+        values.put(TASK_COLUMN_LASTCOMPLETED, "null"); // Last Completed
 
         // Inserting Row
         long newRowID = db.insert(TASK_TABLE_NAME, null, values);
         db.close(); // Closing database connection
-        //debug
+        // debug
         // Toast.makeText(_context, "The new Row Id is " + newRowID, Toast.LENGTH_LONG).show();
         getAllTasks();
     }
@@ -109,6 +112,8 @@ public class DBHandler extends SQLiteOpenHelper {
         HashMap<Integer, ArrayList<String>> newDetailList =
                 new HashMap<Integer, ArrayList<String>>();
         List<Integer> newOrder = new LinkedList<Integer>();
+        List<String> newLastCompleted = new LinkedList<String>();
+
         // Select All Query
         String selectQuery = "SELECT * FROM " + TASK_TABLE_NAME;
 
@@ -127,14 +132,17 @@ public class DBHandler extends SQLiteOpenHelper {
                 ArrayList<String> currDetails = new ArrayList<String>();
                 // get details
                 currDetails.add(cursor.getString(2));
-                // get Date
+                // get date
                 String date = "Due: " + cursor.getString(3);
                 currDetails.add(date);
                 newDateList.add(date);
-                // get Daily
+                // get daily
                 currDetails.add(cursor.getString(4));
                 // put into hashmap
                 newDetailList.put(id, currDetails);
+
+                // get last completed
+                newLastCompleted.add(cursor.getString(5));
 
             } while (cursor.moveToNext());
         }
@@ -150,6 +158,9 @@ public class DBHandler extends SQLiteOpenHelper {
         // update _detailList
         _detailList.clear();
         _detailList.putAll(newDetailList);
+        // update _lastCompleted
+        _lastCompleted.clear();
+        _lastCompleted.addAll(newLastCompleted);
 
         cursor.close();
         // return contact list
@@ -186,19 +197,15 @@ public class DBHandler extends SQLiteOpenHelper {
         switch(position) { //which detail to edit
             case 0:
                 values.put(TASK_COLUMN_DETAILS, newString);
-                //values.put(TASK_COLUMN_DATE, _detailList.get(id).get(1));
-                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(2));
                 break;
             case 1:
-                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(0));
                 values.put(TASK_COLUMN_DATE, newString);
-                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(2));
                 break;
             case 2:
-                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(0));
-                //values.put(TASK_COLUMN_DAILY, _detailList.get(id).get(1));
                 values.put(TASK_COLUMN_DAILY, newString);
                 break;
+            case 3:
+                values.put(TASK_COLUMN_LASTCOMPLETED, newString);
         }
         // updating row
         db.update(TASK_TABLE_NAME, values,TASK_COLUMN_ID + " = ?",

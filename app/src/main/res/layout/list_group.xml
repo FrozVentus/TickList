@@ -12,18 +12,32 @@
         android:textSize="18sp"
         android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/editGroup"
-        android:text="@string/editTitle"
-        android:textSize="14sp"
-        android:layout_gravity="end"/>
+    <GridLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft">
 
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/delete"
-        android:layout_gravity="end"
-        android:src="@drawable/ic_delete"/>
+        <ImageButton
+            android:id="@+id/checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end" />
+
+        <Button
+            android:id="@+id/editGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:gravity="center"
+            android:text="@string/editTitle"
+            android:textSize="14sp" />
+
+        <ImageButton
+            android:id="@+id/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:src="@drawable/ic_delete" />
+    </GridLayout>
+
 </LinearLayout>

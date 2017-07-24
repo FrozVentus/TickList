@@ -34,18 +34,21 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     private List<String> _dateList;
     private HashMap<Integer, ArrayList<String>> _taskDetails; // _id of task is used as Key
     private List<Integer> _orderList; // hold _id of the task in order
+    private List<String> _lastCompleted;
     private int currYear, currMonth, currDay, currHour, currMinute;
     private DBHandler _db;
 
     public ExpandableListAdapter(Context context, List<String> titleList,
                                  List<String> dateList,
                                  HashMap<Integer, ArrayList<String>> taskDetails,
-                                 List<Integer> orderList, DBHandler db){
+                                 List<Integer> orderList, List<String> lastCompleted,
+                                 DBHandler db){
         _context = context;
         _titleList = titleList;
         _dateList = dateList;
         _taskDetails = taskDetails;
         _orderList = orderList;
+        _lastCompleted = lastCompleted;
         _db = db;
     }
 
@@ -61,7 +64,12 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
 
     @Override
     public Object getGroup(int groupPosition) {
-        String groupString = _titleList.get(groupPosition) +
+        String topString = _titleList.get(groupPosition);
+        String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
+        if(isDaily.equals("Daily task")) { // check if is daily task
+            topString = topString.concat(" (Daily Task)");
+        }
+        String groupString = topString +
                 System.getProperty("line.separator") +
                 _dateList.get(groupPosition);
         return groupString;
@@ -96,10 +104,45 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = infalInflater.inflate(R.layout.list_group, null);
         }
+        // set text in group
         TextView titleView = (TextView) convertView.findViewById(R.id.taskTitle);
         titleView.setTypeface(null, Typeface.BOLD);
         titleView.setText(title); // set title
 
+        // set checkbox button
+        ImageButton checkbox = (ImageButton)convertView.findViewById(R.id.checkbox); // delete button
+        final Calendar c = Calendar.getInstance(); // obtains current date
+        currYear = c.get(Calendar.YEAR);
+        currMonth = c.get(Calendar.MONTH);
+        currDay = c.get(Calendar.DAY_OF_MONTH);
+        GregorianCalendar dueDate = new GregorianCalendar(currYear, currMonth, currDay) {
+            @Override
+            public String toString() {
+                return new SimpleDateFormat("d MMM yyyy").format(this.getTime());
+            }
+        };
+        String dateString = dueDate.toString(); // get current date
+        String lastCompleted = _lastCompleted.get(groupPosition); // get last completed
+        if(lastCompleted.equals("null")) { // incomplete task
+            setCheckboxEmpty(checkbox, groupPosition, dateString);
+        }
+        else { // completed task
+            String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
+            if(isDaily.equals("Daily task")) { // check if is daily task
+                if(lastCompleted.equals(dateString)) {// completed on that day
+                    setCheckboxFull(checkbox, groupPosition, dateString);
+                }
+                else { // not completed that day
+                    setCheckboxEmpty(checkbox, groupPosition, dateString);
+                }
+            }
+            else {  // one time off task & completed
+                setCheckboxFull(checkbox, groupPosition, dateString);
+            }
+        }
+
+
+        // set edit button
         Button editButton = (Button)convertView.findViewById(R.id.editGroup); // edit button
         editButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -109,6 +152,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         });
         editButton.setFocusable(false); // allow the text to be clickable
 
+        // set delete button
         ImageButton delete = (ImageButton)convertView.findViewById(R.id.delete); // delete button
         delete.setOnClickListener(new View.OnClickListener() {
 
@@ -130,6 +174,34 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
         delete.setFocusable(false); // allow the text to be clickable
 
         return convertView;
+    }
+
+    private void setCheckboxEmpty(final ImageButton checkbox, final int groupPosition, final String dateString) {
+        checkbox.setImageResource(R.drawable.ic_checkbox_empty);
+        checkbox.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) { // checkbox
+                checkbox.setImageResource(R.drawable.ic_checkbox_full);
+                setCheckboxFull(checkbox, groupPosition, dateString);
+                _db.updateTask(getGroupIndex(groupPosition), 3, dateString);
+            }
+        });
+        checkbox.setFocusable(false); // allow the text to be clickable
+    }
+
+    private void setCheckboxFull(final ImageButton checkbox, final int groupPosition, final String dateString) {
+        checkbox.setImageResource(R.drawable.ic_checkbox_full);
+        checkbox.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) { // checkbox
+                checkbox.setImageResource(R.drawable.ic_checkbox_empty);
+                setCheckboxEmpty(checkbox, groupPosition, dateString);
+                _db.updateTask(getGroupIndex(groupPosition), 3, "null");
+            }
+        });
+        checkbox.setFocusable(false); // allow the text to be clickable
     }
 
     @Override
