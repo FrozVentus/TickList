@@ -58,7 +58,27 @@ public class DBHandler extends SQLiteOpenHelper {
         //debug
         // Toast.makeText(_context, CREATE_CONTACTS_TABLE, Toast.LENGTH_LONG).show();
         db.execSQL(CREATE_CONTACTS_TABLE);
+        initialPlaceholder();
     }
+
+    public void initialPlaceholder() {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(TASK_COLUMN_TITLE, "Example Task"); // TaskName
+        values.put(TASK_COLUMN_DETAILS, "Your Task Detail Here"); // Details
+        values.put(TASK_COLUMN_DATE, "Task Due Date & Time Here"); // Date
+        values.put(TASK_COLUMN_DAILY, "Task Daily Indicator Here"); // Daily
+        values.put(TASK_COLUMN_LASTCOMPLETED, "null"); // Last Completed
+
+        // Inserting Row
+        long newRowID = db.insert(TASK_TABLE_NAME, null, values);
+        // db.close(); // Closing database connection
+        // debug
+        // Toast.makeText(_context, "The new Row Id is " + newRowID, Toast.LENGTH_LONG).show();
+        getAllTasks();
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if existed
@@ -80,7 +100,7 @@ public class DBHandler extends SQLiteOpenHelper {
 
         // Inserting Row
         long newRowID = db.insert(TASK_TABLE_NAME, null, values);
-        db.close(); // Closing database connection
+        // db.close(); // Closing database connection
         // debug
         // Toast.makeText(_context, "The new Row Id is " + newRowID, Toast.LENGTH_LONG).show();
         getAllTasks();
