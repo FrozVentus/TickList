@@ -86,24 +86,6 @@ public class DBHandler extends SQLiteOpenHelper {
         getAllTasks();
     }
 
-/*    // Getting one Task
-    public ToDoList getTask(int id) {
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        Cursor cursor = db.query(TASK_TABLE_NAME, new String[]{TASK_COLUMN_TITLE,
-                TASK_COLUMN_DETAILS, TASK_COLUMN_DATE, TASK_COLUMN_DAILY},
-                TASK_COLUMN_ID + "=?",
-        new String[]{String.valueOf(id)}, null, null, null, null);
-        if (cursor != null)
-            cursor.moveToFirst();
-
-        ToDoList conTask = new ToDoList(cursor.getString(0), cursor.getString(1));
-        // return Task
-
-        cursor.close();
-        return conTask;
-    }*/
-
     // Getting All Tasks
     // Also update what is shown on screen
     public boolean getAllTasks() {
