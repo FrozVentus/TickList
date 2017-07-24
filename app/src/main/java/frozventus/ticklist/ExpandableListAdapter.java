@@ -66,6 +66,7 @@ public class ExpandableListAdapter extends BaseExpandableListAdapter {
     public Object getGroup(int groupPosition) {
         String groupString = _titleList.get(groupPosition) +
                 System.getProperty("line.separator") +
+                System.getProperty("line.separator") +
                 _dateList.get(groupPosition);
         String isDaily = _taskDetails.get(getGroupIndex(groupPosition)).get(2); // get daily
         if(isDaily.equals("Daily Task")) { // check if is daily task

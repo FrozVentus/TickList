@@ -5,24 +5,29 @@
     android:layout_height="wrap_content"
     android:padding="8dp">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/taskTitle"
-        android:textSize="18sp"
-        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft">
 
+        <TextView
+            android:id="@+id/taskTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:paddingRight="?android:attr/expandableListPreferredChildPaddingLeft"/>
+
         <ImageButton
             android:id="@+id/checkbox"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentRight="true" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="?android:attr/expandableListPreferredItemPaddingLeft">
 
         <ImageButton
             android:id="@+id/delete"

@@ -115,7 +115,7 @@ public class DBHandler extends SQLiteOpenHelper {
                 // get details
                 currDetails.add(cursor.getString(2));
                 // get date
-                String date = "Due: " + cursor.getString(3);
+                String date = "Due :  " + cursor.getString(3);
                 currDetails.add(date);
                 newDateList.add(date);
                 // get daily
