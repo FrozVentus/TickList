@@ -65,9 +65,6 @@ public class MainActivity extends AppCompatActivity {
     ExpandableListView mView;
     int currYear, currMonth, currDay, currHour, currMinute;
 
-    //memory saver.
-    //public static final String USERDATA = "MyVariables";
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,7 +84,31 @@ public class MainActivity extends AppCompatActivity {
         myDB.getAllTasks();
         // myDB.initialPlaceholder(); // debug
         updateView();
+
+    FloatingActionButton addTask = (FloatingActionButton) findViewById(R.id.fab);
+        addTask.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final EditText textInput = new EditText(MainActivity.this);
+                final AlertDialog addQuery = new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(R.string.title_addTask)
+                        .setMessage(R.string.prompt_addTask)
+                        .setView(textInput)
+                        .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                String task = String.valueOf(textInput.getText());
+                                addTask(task);
+                                updateView();
+                            }})
+                        .setNegativeButton("Cancel", null)
+                        .create();
+                addQuery.show();
+                updateView();
+            }
+        });
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -103,26 +124,6 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_addTask) {
-            //add new task
-            final EditText textInput = new EditText(this);
-            final AlertDialog addQuery = new AlertDialog.Builder(this)
-                    .setTitle(R.string.title_addTask)
-                    .setMessage(R.string.prompt_addTask)
-                    .setView(textInput)
-                    .setPositiveButton("Add", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            String task = String.valueOf(textInput.getText());
-                            addTask(task);
-                            updateView();
-                        }})
-                    .setNegativeButton("Cancel", null)
-                    .create();
-            addQuery.show();
-            updateView();
-            return true;
-        }
 
         if (id == R.id.action_clearAll) {
             AlertDialog clearQuery = new AlertDialog.Builder(this)

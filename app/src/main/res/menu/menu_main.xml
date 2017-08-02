@@ -4,17 +4,9 @@
     tools:context="frozventus.ticklist.MainActivity">
 
     <item
-        android:id="@+id/action_addTask"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_add_icon"
-        android:title="@string/action_addTask"
-        app:showAsAction="ifRoom"/>
-
-    <item
         android:id="@+id/action_clearAll"
         android:orderInCategory="200"
         android:title="@string/action_clearAll"
         app:showAsAction="never"/>
-
 
 </menu>
