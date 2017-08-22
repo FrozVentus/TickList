@@ -14,20 +14,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.ExpandedMenuView;
 import android.support.v7.widget.Toolbar;
+import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.View;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.BaseExpandableListAdapter;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
-import android.widget.ListView;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 
 import java.lang.reflect.Array;
 import java.text.DateFormat;
@@ -46,11 +36,11 @@ import android.content.DialogInterface;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.app.Activity;
-import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.lang.Object;
+
+import android.widget.ExpandableListAdapter;
 import org.json.JSONObject;
 
 
@@ -64,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
     ExpandableListAdapter expListAdapter;
     ExpandableListView mView;
     int currYear, currMonth, currDay, currHour, currMinute;
+
 
 
     @Override
@@ -86,7 +77,65 @@ public class MainActivity extends AppCompatActivity {
         updateView();
 
     FloatingActionButton addTask = (FloatingActionButton) findViewById(R.id.fab);
-        addTask.setOnClickListener(new View.OnClickListener() {
+
+        addTask.setOnTouchListener(new View.OnTouchListener() {
+            float startY, startRawY, distanceY;
+            int lastAction;
+            DisplayMetrics metrics = getResources().getDisplayMetrics();
+            int windowWidth = metrics.widthPixels;
+            int windowHeight = metrics.heightPixels;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        startY = v.getY() - event.getRawY();
+                        startRawY = event.getRawY();
+                        lastAction = MotionEvent.ACTION_DOWN;
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        if (startY + event.getRawY() > windowHeight - 256) {
+                            startY = windowHeight - event.getRawY() - 256;
+                        }
+                        else if(startY + event.getRawY() < 128) {
+                            startY = -event.getRawY() + 128;
+                        }
+                        v.setY(event.getRawY() + startY);
+                        lastAction = MotionEvent.ACTION_MOVE;
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        distanceY = event.getRawY() - startRawY;
+                        if(Math.abs(distanceY) < 10) {
+                            final EditText textInput = new EditText(MainActivity.this);
+                            final AlertDialog addQuery = new AlertDialog.Builder(MainActivity.this)
+                                    .setTitle(R.string.title_addTask)
+                                    .setMessage(R.string.prompt_addTask)
+                                    .setView(textInput)
+                                    .setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            String task = String.valueOf(textInput.getText());
+                                            addTask(task);
+                                            updateView();
+                                        }})
+                                    .setNegativeButton("Cancel", null)
+                                    .create();
+                            addQuery.show();
+                            updateView();
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_BUTTON_PRESS:
+
+                    default:
+                        return false;
+                }
+                return true;
+            }
+        });
+
+        /*addTask.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final EditText textInput = new EditText(MainActivity.this);
@@ -106,7 +155,8 @@ public class MainActivity extends AppCompatActivity {
                 addQuery.show();
                 updateView();
             }
-        });
+        });*/
+
     }
 
     @Override
